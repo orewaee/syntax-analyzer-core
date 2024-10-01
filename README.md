@@ -5,10 +5,10 @@ A syntax analyzer written in Rust as part of one of my university course subject
 The current version knows how to define chains of the `xyz` kind with any number (greater than 0) of `x`, `y` and `z`.
 That is, the chain `xyz` is the minimal possible chain.
 
-Анализатор использует состояния для определения действий над следующим символом в цепочке.
-Здесь состояния `S`, `F` и `E` отвечают за старт, финиш и ошибку соответственно.
-`A`, `B` и `C` определяют текущий символ цепочки (`x`, `y` и `z` соответственно).
+The analyzer uses states to determine actions on the next symbol in the chain.
+Here the states `S`, `F` and `E` are responsible for start, finish and error respectively.
+`A`, `B` and `C` define the current symbol in the chain (`x`, `y` and `z` respectively).
 
-На графе это выглядит следующим образом:
+In a graph, it looks as follows:
 
 ![graph](docs/graph.png)
