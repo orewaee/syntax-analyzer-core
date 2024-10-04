@@ -1,28 +1,9 @@
-mod color;
+mod error;
+mod state;
 
-use color::{green, red};
+use error::with_message;
 
-#[derive(Debug, PartialEq, Eq)]
-enum State {
-    S,
-    A,
-    B,
-    C,
-    F,
-    E,
-}
-
-pub fn error(string: &str, index: usize, message: &str) {
-    let rigth = &string[..index];
-    let wrong = &string[index..(index + 1)];
-    let other = &string[(index + 1)..];
-
-    println!("{}{}{}", green(rigth), red(wrong), other);
-    println!("{}{}", " ".repeat(index), red("^"));
-
-    let error = format!("error: {}", message);
-    println!("{}", red(error.as_str()));
-}
+use state::State;
 
 fn main() {
     let string = "xxxyyasdz;";
@@ -44,7 +25,7 @@ fn main() {
                     x += 1;
                 } else {
                     state = State::E;
-                    error(string, index, "maybe you wanted to start with x");
+                    with_message(string, index, "maybe you wanted to start with x");
                     break;
                 }
             }
@@ -58,7 +39,7 @@ fn main() {
                     y += 1;
                 } else {
                     state = State::E;
-                    error(string, index, "maybe you wanted to use y");
+                    with_message(string, index, "maybe you wanted to use y");
                     break;
                 }
             }
@@ -72,7 +53,7 @@ fn main() {
                     z += 1;
                 } else {
                     state = State::E;
-                    error(string, index, "maybe you wanted to use z");
+                    with_message(string, index, "maybe you wanted to use z");
                     break;
                 }
             }
@@ -85,7 +66,7 @@ fn main() {
                     state = State::F;
                 } else {
                     state = State::E;
-                    error(string, index, "maybe you wanted to use ;");
+                    with_message(string, index, "maybe you wanted to use ;");
                     break;
                 }
             }
