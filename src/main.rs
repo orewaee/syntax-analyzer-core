@@ -1,11 +1,14 @@
 mod error;
 mod state;
+mod constant;
 
-use error::with_message;
-
-use state::State;
+use crate::constant::is_constant;
 
 fn main() {
+    is_constant("0");
+    is_constant("257");
+
+    /*
     let string = "xxxyyasdz;";
 
     let mut state = State::S;
@@ -83,4 +86,5 @@ fn main() {
         println!("success");
         println!("x: {}; y: {}; z: {};", x, y, z)
     }
+    */
 }
