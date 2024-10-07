@@ -5,8 +5,8 @@ mod constant;
 use crate::constant::is_constant;
 
 fn main() {
-    is_constant("0");
-    is_constant("257");
+    is_constant("39 ");
+    is_constant("25 ");
 
     /*
     let string = "xxxyyasdz;";

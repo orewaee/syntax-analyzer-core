@@ -1,8 +1,13 @@
 #[derive(Debug, Eq, PartialEq)]
 enum State {
     Start,
-    A, B, C, D, E, F,
-    G, H, I, J, K,
+    One,
+    Two,
+    ThreeToNine,
+    ZeroToFour,
+    Five,
+    ZeroToNine,
+    Space,
     Error,
     Finish,
 }
@@ -16,9 +21,9 @@ pub fn is_constant(string: &str) {
         symbol = string.chars().nth(index).unwrap();
         match state {
             State::Start => match symbol {
-                '1' => state = State::A,
-                '2' => state = State::F,
-                '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::D,
+                '1' => state = State::One,
+                '2' => state = State::Two,
+                '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::ThreeToNine,
 
                 _ => {
                     state = State::Error;
@@ -27,9 +32,9 @@ pub fn is_constant(string: &str) {
                 }
             }
 
-            State::A => match symbol {
+            State::One => match symbol {
                 ' ' => state = State::Finish,
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::B,
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::ZeroToNine,
 
                 _ => {
                     state = State::Error;
@@ -38,9 +43,9 @@ pub fn is_constant(string: &str) {
                 }
             }
 
-            State::B => match symbol {
+            State::ZeroToNine => match symbol {
                 ' ' => state = State::Finish,
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::C,
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::Space,
 
                 _ => {
                     state = State::Error;
@@ -49,8 +54,11 @@ pub fn is_constant(string: &str) {
                 }
             }
 
-            State::C => match symbol {
+            State::Two => match symbol {
                 ' ' => state = State::Finish,
+                '0' | '1' | '2' | '3' | '4' => state = State::ZeroToFour,
+                '5' => state = State::Five,
+                '6' | '7' | '8' | '9' => state = State::Space,
 
                 _ => {
                     state = State::Error;
@@ -59,9 +67,9 @@ pub fn is_constant(string: &str) {
                 }
             }
 
-            State::D => match symbol {
+            State::ZeroToFour => match symbol {
                 ' ' => state = State::Finish,
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::E,
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::Space,
 
                 _ => {
                     state = State::Error;
@@ -70,11 +78,9 @@ pub fn is_constant(string: &str) {
                 }
             }
 
-            State::F => match symbol {
+            State::Five => match symbol {
                 ' ' => state = State::Finish,
-                '0' | '1' | '2' | '3' | '4' => state = State::G,
-                '5' => state = State::H,
-                '6' | '7' | '8' | '9' => state = State::I,
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' => state = State::Space,
 
                 _ => {
                     state = State::Error;
@@ -83,9 +89,9 @@ pub fn is_constant(string: &str) {
                 }
             }
 
-            State::G => match symbol {
+            State::ThreeToNine => match symbol {
                 ' ' => state = State::Finish,
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::J,
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::Space,
 
                 _ => {
                     state = State::Error;
@@ -94,38 +100,7 @@ pub fn is_constant(string: &str) {
                 }
             }
 
-            State::J => match symbol {
-                ' ' => state = State::Finish,
-
-                _ => {
-                    state = State::Error;
-                    println!("error. index = {}", index);
-                    break;
-                }
-            }
-
-            State::H => match symbol {
-                ' ' => state = State::Finish,
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' => state = State::K,
-
-                _ => {
-                    state = State::Error;
-                    println!("error. index = {}", index);
-                    break;
-                }
-            }
-
-            State::K => match symbol {
-                ' ' => state = State::Finish,
-
-                _ => {
-                    state = State::Error;
-                    println!("error. index = {}", index);
-                    break;
-                }
-            }
-
-            State::I => match symbol {
+            State::Space => match symbol {
                 ' ' => state = State::Finish,
 
                 _ => {
