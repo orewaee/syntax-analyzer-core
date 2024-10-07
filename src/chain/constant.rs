@@ -31,19 +31,9 @@ pub fn is_constant(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::One => match symbol {
+            State::One | State::ZeroToNine | State::ZeroToFour | State::ThreeToNine => match symbol {
                 ' ' => state = State::Finish,
                 '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::ZeroToNine,
-
-                _ => {
-                    state = State::Error;
-                    return Err((index, "there must be a space or a number between 0 and 9"));
-                }
-            }
-
-            State::ZeroToNine => match symbol {
-                ' ' => state = State::Finish,
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::Space,
 
                 _ => {
                     state = State::Error;
@@ -63,16 +53,6 @@ pub fn is_constant(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::ZeroToFour => match symbol {
-                ' ' => state = State::Finish,
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::Space,
-
-                _ => {
-                    state = State::Error;
-                    return Err((index, "there must be a space or a number between 0 and 9"));
-                }
-            }
-
             State::Five => match symbol {
                 ' ' => state = State::Finish,
                 '0' | '1' | '2' | '3' | '4' | '5' | '6' => state = State::Space,
@@ -80,16 +60,6 @@ pub fn is_constant(string: &str) -> Result<(), (usize, &str)> {
                 _ => {
                     state = State::Error;
                     return Err((index, "there must be a space or a number between 0 and 6"));
-                }
-            }
-
-            State::ThreeToNine => match symbol {
-                ' ' => state = State::Finish,
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::Space,
-
-                _ => {
-                    state = State::Error;
-                    return Err((index, "there must be a space or a number between 0 and 9"));
                 }
             }
 
