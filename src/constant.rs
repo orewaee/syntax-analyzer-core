@@ -12,7 +12,7 @@ enum State {
     Finish,
 }
 
-pub fn is_constant(string: &str) {
+pub fn is_constant(string: &str) -> Result<(), (usize, &str)> {
     let mut state = State::Start;
     let mut index = 0;
     let mut symbol: char;
@@ -27,8 +27,7 @@ pub fn is_constant(string: &str) {
 
                 _ => {
                     state = State::Error;
-                    println!("error. index = {}", index);
-                    break;
+                    return Err((index, "the constant must start with a number between 1 and 9"));
                 }
             }
 
@@ -38,8 +37,7 @@ pub fn is_constant(string: &str) {
 
                 _ => {
                     state = State::Error;
-                    println!("error. index = {}", index);
-                    break;
+                    return Err((index, "there must be a space or a number between 0 and 9"));
                 }
             }
 
@@ -49,8 +47,7 @@ pub fn is_constant(string: &str) {
 
                 _ => {
                     state = State::Error;
-                    println!("error. index = {}", index);
-                    break;
+                    return Err((index, "there must be a space or a number between 0 and 9"));
                 }
             }
 
@@ -62,8 +59,7 @@ pub fn is_constant(string: &str) {
 
                 _ => {
                     state = State::Error;
-                    println!("error. index = {}", index);
-                    break;
+                    return Err((index, "there must be a space or a number between 0 and 9"));
                 }
             }
 
@@ -73,8 +69,7 @@ pub fn is_constant(string: &str) {
 
                 _ => {
                     state = State::Error;
-                    println!("error. index = {}", index);
-                    break;
+                    return Err((index, "there must be a space or a number between 0 and 9"));
                 }
             }
 
@@ -84,8 +79,7 @@ pub fn is_constant(string: &str) {
 
                 _ => {
                     state = State::Error;
-                    println!("error. index = {}", index);
-                    break;
+                    return Err((index, "there must be a space or a number between 0 and 6"));
                 }
             }
 
@@ -95,8 +89,7 @@ pub fn is_constant(string: &str) {
 
                 _ => {
                     state = State::Error;
-                    println!("error. index = {}", index);
-                    break;
+                    return Err((index, "there must be a space or a number between 0 and 9"));
                 }
             }
 
@@ -105,22 +98,22 @@ pub fn is_constant(string: &str) {
 
                 _ => {
                     state = State::Error;
-                    println!("error. index = {}", index);
-                    break;
+                    return Err((index, "there should be a space here"));
                 }
             }
 
             _ => {
                 state = State::Error;
-                println!("error. index = {}", index);
-                break;
+                return Err((index, "unexpected error"));
             }
         }
 
         index += 1;
     }
 
-    if state == State::Finish {
-        println!("success");
+    if state != State::Finish {
+        return Err((index, "there should be a space here"));
     }
+
+    Ok(())
 }
