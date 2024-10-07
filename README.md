@@ -12,3 +12,10 @@ Here the states `S`, `F` and `E` are responsible for start, finish and error res
 In a graph, it looks as follows:
 
 ![graph](docs/graph.png)
+
+
+## Constant
+
+The constants (numbers from 1 to 256) are analyzed according to the following scheme:
+
+![constant](./docs/constant.png)
