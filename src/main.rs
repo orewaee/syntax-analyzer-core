@@ -1,13 +1,13 @@
-mod constant;
+mod chain;
 mod cli;
 
-use crate::constant::is_constant;
+use crate::chain::xyz::is_xyz;
 
 fn main() {
-    let items = vec!["1", "257", "128 "];
+    let items = vec!["xyz", "xxxyyasdz;", "xyyyyzzz;"];
     for item in items {
-        match is_constant(item) {
-            Ok(()) => println!("{} is constant", item),
+        match is_xyz(item) {
+            Ok((x, y, z)) => println!("{} is xyz. x = {}, y = {}, z = {}", item, x, y, z),
             Err(error) => cli::error::with_message(item, error.0, error.1)
         }
     }

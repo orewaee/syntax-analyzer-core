@@ -9,8 +9,4 @@ pub fn with_message(string: &str, index: usize, message: &str) {
 
     println!("{BLUE}{}{RESET}{}{}", right, wrong, other);
     println!("{RED}{}└─ {}{RESET}", " ".repeat(index), message);
-
-
-    // let error = format!("error: {}", message);
-    // println!("{RED}error: {}{RESET}", error);
 }
