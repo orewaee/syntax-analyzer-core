@@ -19,3 +19,7 @@ In a graph, it looks as follows:
 The constants (numbers from 1 to 256) are analyzed according to the following scheme:
 
 ![constant](./docs/constant.png)
+
+An example of analyzer's work for constants:
+
+![example](./docs/constant-example.png)

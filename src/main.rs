@@ -10,5 +10,6 @@ fn main() {
             Ok(()) => cli::success::with_message(item, "is constant"),
             Err(error) => cli::error::with_message(item, error.0, error.1)
         }
+        println!();
     }
 }
