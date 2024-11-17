@@ -1,29 +1,5 @@
-#[derive(Debug, Eq, PartialEq)]
-enum State {
-    Start,
-    F, O, R,
-    Spaces0,
-    IdLetter0,
-    IdLetterOrDigit0,
-    Colon,
-    Equal,
-    Spaces1,
-    ConstWithSign,
-
-    // negative constant states
-    NegativeConst,
-    NC0, NC1, NC2, NC3, NC4, NC5, NC6, NC7, NC8,
-
-    // zero constant
-    ZeroConst,
-
-    // positive constant states
-    PositiveConst,
-    PC0, PC1, PC2, PC3, PC4, PC5, PC6, PC7, PC8,
-
-    Error,
-    Finish
-}
+use crate::chain::state::State;
+use crate::chain::utils::negative_const_0;
 
 fn is_for(string: &str) -> Result<(), (usize, &str)> {
     let mut state = State::Start;
@@ -44,7 +20,7 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
 
                 'f' => {
-                    state = State::F;
+                    state = State::ForF;
                     continue;
                 }
 
@@ -54,9 +30,9 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::F => match symbol {
+            State::ForF => match symbol {
                 'o' => {
-                    state = State::O;
+                    state = State::ForO;
                     continue;
                 }
 
@@ -66,9 +42,9 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::O => match symbol {
+            State::ForO => match symbol {
                 'r' => {
-                    state = State::R;
+                    state = State::ForR;
                     continue;
                 }
 
@@ -78,9 +54,9 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::R => match symbol {
+            State::ForR => match symbol {
                 ' ' => {
-                    state = State::Spaces0;
+                    state = State::ForSpaces;
                     continue;
                 }
 
@@ -90,7 +66,7 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::Spaces0 => {
+            State::ForSpaces => {
                 if symbol == ' ' {
                     state = State::Spaces0;
                     continue;
@@ -147,7 +123,6 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
 
 
-
                 state = State::Error;
                 return Err((index, "error"));
             }
@@ -158,18 +133,18 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                     continue;
                 }
 
-                if symbol == '0' {
-                    state = State::ZeroConst;
-                    continue
-                }
-
                 if symbol == '-' {
-                    state = State::NegativeConst;
+                    state = State::StNegativeConst;
                     continue;
                 }
 
+                if symbol == '0' {
+                    state = State::StZeroConst;
+                    continue
+                }
+
                 if symbol == '+' {
-                    state = State::PositiveConst;
+                    state = State::StPositiveConst;
                     continue;
                 }
 
@@ -179,9 +154,28 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
 
             // negative constant
 
-            State::NegativeConst => match symbol {
-                '1' | '2' => state = State::NC0,
-                '3' => state = State::NC1,
+            /*
+            State::StNegativeConst => match negative_const_0(symbol, State::StNC0, State::StNC1) {
+                Ok(result) => state = result,
+                Err(_) => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdNegativeConst => match negative_const_0(symbol, State::NdNC0, State::NdNC1) {
+                Ok(result) => state = result,
+                Err(_) => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+            */
+
+
+            State::StNegativeConst => match symbol {
+                '1' | '2' => state = State::StNC0,
+                '3' => state = State::StNC1,
 
                 _ => {
                     state = State::Error;
@@ -189,9 +183,11 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::NC0 => match symbol {
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::NC2,
-                '*' => {}, // todo replace to end
+            State::StNC0 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::StNC2,
+
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
 
                 _ => {
                     state = State::Error;
@@ -199,10 +195,12 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::NC1 => match symbol {
-                '0' | '1' => state = State::NC2,
-                '2' => state = State::NC3,
-                '*' => {}, // todo replace to end
+            State::StNC1 => match symbol {
+                '0' | '1' => state = State::StNC2,
+                '2' => state = State::StNC3,
+
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
 
                 _ => {
                     state = State::Error;
@@ -210,9 +208,11 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::NC2 => match symbol {
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::NC4,
-                '*' => {}, // todo replace to end
+            State::StNC2 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::StNC4,
+
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
 
                 _ => {
                     state = State::Error;
@@ -220,10 +220,12 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::NC3 => match symbol {
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' => state = State::NC4,
-                '7' => state = State::NC5,
-                '*' => {}, // todo replace to end
+            State::StNC3 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' => state = State::StNC4,
+                '7' => state = State::StNC5,
+
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
 
                 _ => {
                     state = State::Error;
@@ -231,9 +233,11 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::NC4 => match symbol {
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::NC6,
-                '*' => {}, // todo replace to end
+            State::StNC4 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::StNC6,
+
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
 
                 _ => {
                     state = State::Error;
@@ -241,10 +245,12 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::NC5 => match symbol {
-                '0' | '1' | '2' | '3' | '4' | '5' => state = State::NC6,
-                '6' => state = State::NC7,
-                '*' => {}, // todo replace to end
+            State::StNC5 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' => state = State::StNC6,
+                '6' => state = State::StNC7,
+
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
 
                 _ => {
                     state = State::Error;
@@ -252,9 +258,11 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::NC6 => match symbol {
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::NC8,
-                '*' => {}, // todo replace to end
+            State::StNC6 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::StNC8,
+
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
 
                 _ => {
                     state = State::Error;
@@ -262,9 +270,11 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::NC7 => match symbol {
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' => state = State::NC8,
-                '*' => {}, // todo replace to end
+            State::StNC7 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' => state = State::StNC8,
+
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
 
                 _ => {
                     state = State::Error;
@@ -272,8 +282,256 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::NC8 => match symbol {
-                '*' => {}, // todo replace to end
+            State::StNC8 | State::StSpaces => match symbol {
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdNegativeConst => match symbol {
+                '1' | '2' => state = State::NdNC0,
+                '3' => state = State::NdNC1,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdNC0 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::NdNC2,
+
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdNC1 => match symbol {
+                '0' | '1' => state = State::NdNC2,
+                '2' => state = State::NdNC3,
+
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdNC2 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::NdNC4,
+
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdNC3 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' => state = State::NdNC4,
+                '7' => state = State::NdNC5,
+
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdNC4 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::NdNC6,
+
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdNC5 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' => state = State::NdNC6,
+                '6' => state = State::NdNC7,
+
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdNC6 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::NdNC8,
+
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdNC7 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' => state = State::NdNC8,
+
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdNC8 | State::NdSpaces => match symbol {
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdNegativeConst => match symbol {
+                '1' | '2' => state = State::RdNC0,
+                '3' => state = State::RdNC1,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdNC0 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::RdNC2,
+
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdNC1 => match symbol {
+                '0' | '1' => state = State::RdNC2,
+                '2' => state = State::RdNC3,
+
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdNC2 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::RdNC4,
+
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdNC3 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' => state = State::RdNC4,
+                '7' => state = State::RdNC5,
+
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdNC4 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::RdNC6,
+
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdNC5 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' => state = State::RdNC6,
+                '6' => state = State::RdNC7,
+
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdNC6 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::RdNC8,
+
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdNC7 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' => state = State::RdNC8,
+
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdNC8 | State::RdSpaces => match symbol {
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
 
                 _ => {
                     state = State::Error;
@@ -283,8 +541,30 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
 
             // zero constant
 
-            State::ZeroConst => match symbol {
-                '*' => {}, // todo replace to end
+            State::StZeroConst => match symbol {
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdZeroConst => match symbol {
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdZeroConst => match symbol {
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
 
                 _ => {
                     state = State::Error;
@@ -294,9 +574,9 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
 
             // positive constant
 
-            State::PositiveConst => match symbol {
-                '1' | '2' => state = State::PC0,
-                '3' => state = State::PC1,
+            State::StPositiveConst => match symbol {
+                '1' | '2' => state = State::StPC0,
+                '3' => state = State::StPC1,
 
                 _ => {
                     state = State::Error;
@@ -304,9 +584,11 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::PC0 => match symbol {
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::PC2,
-                '*' => {}, // todo replace to end
+            State::StPC0 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::StPC2,
+
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
 
                 _ => {
                     state = State::Error;
@@ -314,10 +596,12 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::PC1 => match symbol {
-                '0' | '1' => state = State::PC2,
-                '2' => state = State::PC3,
-                '*' => {}, // todo replace to end
+            State::StPC1 => match symbol {
+                '0' | '1' => state = State::StPC2,
+                '2' => state = State::StPC3,
+
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
 
                 _ => {
                     state = State::Error;
@@ -325,9 +609,11 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::PC2 => match symbol {
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::PC4,
-                '*' => {}, // todo replace to end
+            State::StPC2 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::StPC4,
+
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
 
                 _ => {
                     state = State::Error;
@@ -335,10 +621,12 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::PC3 => match symbol {
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' => state = State::PC4,
-                '7' => state = State::PC5,
-                '*' => {}, // todo replace to end
+            State::StPC3 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' => state = State::StPC4,
+                '7' => state = State::StPC5,
+
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
 
                 _ => {
                     state = State::Error;
@@ -346,9 +634,11 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::PC4 => match symbol {
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::PC6,
-                '*' => {}, // todo replace to end
+            State::StPC4 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::StPC6,
+
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
 
                 _ => {
                     state = State::Error;
@@ -356,10 +646,12 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::PC5 => match symbol {
-                '0' | '1' | '2' | '3' | '4' | '5' => state = State::PC6,
-                '6' => state = State::PC7,
-                '*' => {}, // todo replace to end
+            State::StPC5 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' => state = State::StPC6,
+                '6' => state = State::StPC7,
+
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
 
                 _ => {
                     state = State::Error;
@@ -367,9 +659,11 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::PC6 => match symbol {
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::PC8,
-                '*' => {}, // todo replace to end
+            State::StPC6 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::StPC8,
+
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
 
                 _ => {
                     state = State::Error;
@@ -377,9 +671,11 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::PC7 => match symbol {
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' => state = State::PC8,
-                '*' => {}, // todo replace to end
+            State::StPC7 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' => state = State::StPC8,
+
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
 
                 _ => {
                     state = State::Error;
@@ -387,8 +683,316 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::PC8 => match symbol {
-                '*' => {}, // todo replace to end
+            State::StPC8 => match symbol {
+                ' ' => state = State::StSpaces,
+                't' => state = State::ToT,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdPositiveConst => match symbol {
+                '1' | '2' => state = State::NdPC0,
+                '3' => state = State::NdPC1,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdPC0 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::NdPC2,
+
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdPC1 => match symbol {
+                '0' | '1' => state = State::NdPC2,
+                '2' => state = State::NdPC3,
+
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdPC2 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::NdPC4,
+
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdPC3 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' => state = State::NdPC4,
+                '7' => state = State::NdPC5,
+
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdPC4 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::NdPC6,
+
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdPC5 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' => state = State::NdPC6,
+                '6' => state = State::NdPC7,
+
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdPC6 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::NdPC8,
+
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdPC7 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' => state = State::NdPC8,
+
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdPC8 => match symbol {
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdPositiveConst => match symbol {
+                '1' | '2' => state = State::RdPC0,
+                '3' => state = State::RdPC1,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdPC0 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::RdPC2,
+
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdPC1 => match symbol {
+                '0' | '1' => state = State::RdPC2,
+                '2' => state = State::RdPC3,
+
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdPC2 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::RdPC4,
+
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdPC3 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' => state = State::RdPC4,
+                '7' => state = State::RdPC5,
+
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdPC4 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::RdPC6,
+
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdPC5 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' => state = State::RdPC6,
+                '6' => state = State::RdPC7,
+
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdPC6 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::RdPC8,
+
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdPC7 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' => state = State::RdPC8,
+
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdPC8 => match symbol {
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::ToT => match symbol {
+                'o' => state = State::ToO,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::ToO | State::StNdSpaces => match symbol {
+                ' ' => state = State::StNdSpaces,
+                '-' => state = State::NdNegativeConst,
+                '0' => state = State::NdZeroConst,
+                '+' => state = State::NdPositiveConst,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::ByB => match symbol {
+                'y' => state = State::ByY,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::ByY | State::NdRdSpaces => match symbol {
+                ' ' => state = State::NdRdSpaces,
+                '-' => state = State::RdNegativeConst,
+                '0' => state = State::RdZeroConst,
+                '+' => state = State::RdPositiveConst,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::DoD => match symbol {
+                'o' => state = State::DoO,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::DoO => match symbol {
+                '/' => state = State::Finish,
 
                 _ => {
                     state = State::Error;
