@@ -8,5 +8,5 @@ pub fn with_message(string: &str, index: usize, message: &str) {
     let other = &string[(index + 1)..];
 
     println!("{BLUE}{}{RESET}{}{}", right, wrong, other);
-    println!("{RED}{}└─ {}{RESET}", " ".repeat(index), message);
+    println!("{RED}{}└─ {} ({}){RESET}", " ".repeat(index), message, index);
 }

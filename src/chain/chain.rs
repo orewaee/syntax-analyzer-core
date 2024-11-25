@@ -1,7 +1,6 @@
 use crate::chain::state::State;
-use crate::chain::utils::negative_const_0;
 
-fn is_for(string: &str) -> Result<(), (usize, &str)> {
+pub fn is_for(string: &str, end_terminal: char) -> Result<(), (usize, &str)> {
     let mut state = State::Start;
     let mut index = 0;
     let mut symbol: char;
@@ -16,35 +15,39 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
             State::Start => match symbol {
                 ' ' => {
                     state = State::Start;
+                    index += 1;
                     continue
                 }
 
                 'f' => {
                     state = State::ForF;
+                    index += 1;
                     continue;
                 }
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "error"));
+                    return Err((index, "maybe you want to use F"));
                 }
             }
 
             State::ForF => match symbol {
                 'o' => {
                     state = State::ForO;
+                    index += 1;
                     continue;
                 }
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "error"));
+                    return Err((index, "maybe you want to use O, but expected "));
                 }
             }
 
             State::ForO => match symbol {
                 'r' => {
                     state = State::ForR;
+                    index += 1;
                     continue;
                 }
 
@@ -57,6 +60,7 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
             State::ForR => match symbol {
                 ' ' => {
                     state = State::ForSpaces;
+                    index += 1;
                     continue;
                 }
 
@@ -68,12 +72,14 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
 
             State::ForSpaces => {
                 if symbol == ' ' {
-                    state = State::Spaces0;
+                    state = State::ForSpaces;
+                    index += 1;
                     continue;
                 }
 
                 if letters.contains(&symbol) {
-                    state = State::IdLetter0;
+                    state = State::IdLetter;
+                    index += 1;
                     continue;
                 }
 
@@ -81,9 +87,10 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 return Err((index, "error"));
             }
 
-            State::IdLetter0 => {
+            State::IdLetter => {
                 if letters.contains(&symbol) || digits.contains(&symbol) {
-                    state = State::IdLetterOrDigit0;
+                    state = State::IdLetterOrDigit;
+                    index += 1;
                     continue;
                 }
 
@@ -91,14 +98,28 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 return Err((index, "error"));
             }
 
-            State::IdLetterOrDigit0 => {
+            State::IdLetterOrDigit => {
                 if letters.contains(&symbol) || digits.contains(&symbol) {
-                    state = State::IdLetterOrDigit0;
+                    state = State::IdLetterOrDigit;
+                    index += 1;
+                    continue;
+                }
+
+                if symbol == ' ' {
+                    state = State::IdSpaces;
+                    index += 1;
                     continue;
                 }
 
                 if symbol == ':' {
                     state = State::Colon;
+                    index += 1;
+                    continue;
+                }
+
+                if symbol == '[' {
+                    state = State::LeftBracket;
+                    index += 1;
                     continue;
                 }
 
@@ -106,72 +127,183 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 return Err((index, "error"));
             }
 
-            State::Colon => {
-                if symbol == '=' {
-                    state = State::Equal;
-                    continue;
-                }
+            State::IdSpaces => match symbol {
+                ' ' => state = State::IdSpaces,
+                ':' => state = State::Colon,
+                '[' => state = State::LeftBracket,
 
-                state = State::Error;
-                return Err((index, "error"));
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
             }
 
-            State::Equal => {
+            State::LeftBracket => {
                 if symbol == ' ' {
-                    state = State::Spaces1;
+                    state = State::LeftBracketSpaces;
+                    index += 1;
                     continue;
                 }
 
+                if letters.contains(&symbol) {
+                    state = State::ListIdLetter;
+                    index += 1;
+                    continue;
+                }
+
+                if symbol == '1' {
+                    state = State::LC0;
+                    index += 1;
+                    continue;
+                }
+
+                if symbol == '2' {
+                    state = State::LC1;
+                    index += 1;
+                    continue;
+                }
+
+                if digits[3..].contains(&symbol) {
+                    state = State::LC2;
+                    index += 1;
+                    continue;
+                }
 
                 state = State::Error;
                 return Err((index, "error"));
             }
 
-            State::Spaces1 => {
+            State::LeftBracketSpaces => {
                 if symbol == ' ' {
-                    state = State::Spaces1;
+                    state = State::LeftBracketSpaces;
+                    index += 1;
                     continue;
                 }
 
-                if symbol == '-' {
-                    state = State::StNegativeConst;
+                if letters.contains(&symbol) {
+                    state = State::ListIdLetter;
+                    index += 1;
                     continue;
                 }
 
-                if symbol == '0' {
-                    state = State::StZeroConst;
-                    continue
+                if symbol == '1' {
+                    state = State::LC0;
+                    index += 1;
+                    continue;
                 }
 
-                if symbol == '+' {
-                    state = State::StPositiveConst;
+                if symbol == '2' {
+                    state = State::LC1;
+                    index += 1;
+                    continue;
+                }
+
+                if digits[3..].contains(&symbol) {
+                    state = State::LC2;
+                    index += 1;
                     continue;
                 }
 
                 state = State::Error;
                 return Err((index, "error"));
             }
-
-            // negative constant
 
             /*
-            State::StNegativeConst => match negative_const_0(symbol, State::StNC0, State::StNC1) {
-                Ok(result) => state = result,
-                Err(_) => {
-                    state = State::Error;
-                    return Err((index, "error"));
-                }
-            }
+            State::LC0 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
 
-            State::NdNegativeConst => match negative_const_0(symbol, State::NdNC0, State::NdNC1) {
-                Ok(result) => state = result,
-                Err(_) => {
-                    state = State::Error;
-                    return Err((index, "error"));
                 }
             }
             */
 
+            State::ListIdLetter => {
+                if letters.contains(&symbol) || digits.contains(&symbol) {
+                    state = State::ListIdLetterOrDigit;
+                    index += 1;
+                    continue;
+                }
+
+                state = State::Error;
+                return Err((index, "error"));
+            }
+
+            State::ListIdLetterOrDigit => match symbol {
+                ' ' => state = State::RightBracketSpaces,
+                ',' => state = State::Comma,
+                ']' => state = State::RightBracket,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::Comma | State::CommaSpaces => {
+                if symbol == ' ' {
+                    state = State::CommaSpaces;
+                    index += 1;
+                    continue;
+                }
+
+                if letters.contains(&symbol) {
+                    state = State::ListIdLetter;
+                    index += 1;
+                    continue;
+                }
+
+                if symbol == '1' {
+                    state = State::LC0;
+                    index += 1;
+                    continue;
+                }
+
+                if symbol == '2' {
+                    state = State::LC1;
+                    index += 1;
+                    continue;
+                }
+
+                if digits[3..].contains(&symbol) {
+                    state = State::LC2;
+                    index += 1;
+                    continue;
+                }
+
+                state = State::Error;
+                return Err((index, "error"));
+            }
+
+            State::Colon => match symbol {
+                '=' => state = State::Equal,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::Equal => match symbol {
+                ' ' => state = State::ColonEqualSpaces,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::ColonEqualSpaces => match symbol {
+                ' ' => state = State::ColonEqualSpaces,
+                '-' => state = State::StNegativeConst,
+                '0' => state = State::StZeroConst,
+                '+' => state = State::StPositiveConst,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            // negative constant
 
             State::StNegativeConst => match symbol {
                 '1' | '2' => state = State::StNC0,
@@ -991,20 +1123,28 @@ fn is_for(string: &str) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::DoO => match symbol {
-                '/' => state = State::Finish,
-
-                _ => {
-                    state = State::Error;
-                    return Err((index, "error"));
+            State::DoO => {
+                if symbol == end_terminal {
+                    state = State::Finish;
+                    index += 1;
+                    continue;
                 }
+
+                state = State::Error;
+                return Err((index, "error"));
             }
 
             _ => {
                 state = State::Error;
-                return Err((index, "error"));
+                return Err((index, "unexpected error"));
             }
         }
+
+        index += 1;
+    }
+
+    if state != State::Finish {
+        return Err((index, "use end terminal for close chain"));
     }
 
     Ok(())

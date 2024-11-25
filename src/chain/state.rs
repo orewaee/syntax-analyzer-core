@@ -5,13 +5,29 @@ pub enum State {
     // "for" keyword
     ForF, ForO, ForR, ForSpaces,
 
-    Spaces0,
-    IdLetter0,
-    IdLetterOrDigit0,
-    Colon,
-    Equal,
-    Spaces1,
-    ConstWithSign,
+
+    // identifier
+    IdLetter, IdLetterOrDigit, IdSpaces,
+
+
+    // list identifier
+    ListIdLetter, ListIdLetterOrDigit,
+
+
+    // list constant
+    LC0, LC1, LC2, LC3, LC4, LC5, LC6,
+
+
+    // ":=" construction
+    Colon, Equal, ColonEqualSpaces,
+
+
+    // list comma
+    Comma, CommaSpaces,
+
+    // square brackets
+    LeftBracket, LeftBracketSpaces,
+    RightBracket, RightBracketSpaces,
 
 
     // negative constant
