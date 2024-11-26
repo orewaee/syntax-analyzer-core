@@ -1,5 +1,17 @@
 use crate::chain::state::State;
 
+fn has_keyword(string: String) -> bool {
+    let keywords = vec!["for", "to", "by", "do"];
+
+    for keyword in keywords {
+        if string.contains(keyword) {
+            return true;
+        }
+    }
+
+    false
+}
+
 pub fn is_for(string: &str, end_terminal: char) -> Result<(), (usize, &str)> {
     let mut state = State::Start;
     let mut index = 0;
@@ -7,6 +19,10 @@ pub fn is_for(string: &str, end_terminal: char) -> Result<(), (usize, &str)> {
 
     let digits: Vec<char> = "0123456789".chars().collect();
     let letters: Vec<char> = "abcdefghijklmnopqrstuvwxyz".chars().collect();
+
+    let mut used_ids: Vec<String> = vec![];
+    let mut id: String = String::new();
+    let mut list_id: String = String::new();
 
     while state != State::Finish && state != State::Error && index < string.len() {
         symbol = string.chars().nth(index).unwrap().to_ascii_lowercase();
@@ -78,6 +94,20 @@ pub fn is_for(string: &str, end_terminal: char) -> Result<(), (usize, &str)> {
                 }
 
                 if letters.contains(&symbol) {
+                    // semantics
+                    id.push(symbol);
+
+                    if has_keyword(id.to_owned()) {
+                        state = State::Error;
+                        return Err((index, "id contains keyword"));
+                    }
+
+                    if id.len() > 8 {
+                        state = State::Error;
+                        return Err((index, "id too long"));
+                    }
+
+
                     state = State::IdLetter;
                     index += 1;
                     continue;
@@ -89,7 +119,44 @@ pub fn is_for(string: &str, end_terminal: char) -> Result<(), (usize, &str)> {
 
             State::IdLetter => {
                 if letters.contains(&symbol) || digits.contains(&symbol) {
+                    // semantics
+                    id.push(symbol);
+
+                    if has_keyword(id.to_owned()) {
+                        state = State::Error;
+                        return Err((index, "id contains keyword"));
+                    }
+
+                    if id.len() > 8 {
+                        state = State::Error;
+                        return Err((index, "id too long"));
+                    }
+
                     state = State::IdLetterOrDigit;
+                    index += 1;
+                    continue;
+                }
+
+                if symbol == ' ' {
+                    used_ids.push(id.to_owned());
+
+                    state = State::IdSpaces;
+                    index += 1;
+                    continue;
+                }
+
+                if symbol == ':' {
+                    used_ids.push(id.to_owned());
+
+                    state = State::Colon;
+                    index += 1;
+                    continue;
+                }
+
+                if symbol == '[' {
+                    used_ids.push(id.to_owned());
+
+                    state = State::LeftBracket;
                     index += 1;
                     continue;
                 }
@@ -100,24 +167,44 @@ pub fn is_for(string: &str, end_terminal: char) -> Result<(), (usize, &str)> {
 
             State::IdLetterOrDigit => {
                 if letters.contains(&symbol) || digits.contains(&symbol) {
+                    // semantics
+                    id.push(symbol);
+
+                    if has_keyword(id.to_owned()) {
+                        state = State::Error;
+                        return Err((index, "id contains keyword"));
+                    }
+
+                    if id.len() > 8 {
+                        state = State::Error;
+                        return Err((index, "id too long"));
+                    }
+
+
                     state = State::IdLetterOrDigit;
                     index += 1;
                     continue;
                 }
 
                 if symbol == ' ' {
+                    used_ids.push(id.to_owned());
+
                     state = State::IdSpaces;
                     index += 1;
                     continue;
                 }
 
                 if symbol == ':' {
+                    used_ids.push(id.to_owned());
+
                     state = State::Colon;
                     index += 1;
                     continue;
                 }
 
                 if symbol == '[' {
+                    used_ids.push(id.to_owned());
+
                     state = State::LeftBracket;
                     index += 1;
                     continue;
@@ -146,6 +233,12 @@ pub fn is_for(string: &str, end_terminal: char) -> Result<(), (usize, &str)> {
                 }
 
                 if letters.contains(&symbol) {
+                    list_id.push(symbol);
+                    if has_keyword(list_id.to_owned()) {
+                        state = State::Error;
+                        return Err((index, "id contains keyword"));
+                    }
+
                     state = State::ListIdLetter;
                     index += 1;
                     continue;
@@ -181,6 +274,20 @@ pub fn is_for(string: &str, end_terminal: char) -> Result<(), (usize, &str)> {
                 }
 
                 if letters.contains(&symbol) {
+                    // semantics
+                    list_id = String::from(symbol);
+
+                    if has_keyword(list_id.to_owned()) {
+                        state = State::Error;
+                        return Err((index, "id contains keyword"));
+                    }
+
+                    if list_id.len() > 8 {
+                        state = State::Error;
+                        return Err((index, "id is too long"));
+                    }
+
+
                     state = State::ListIdLetter;
                     index += 1;
                     continue;
@@ -208,26 +315,8 @@ pub fn is_for(string: &str, end_terminal: char) -> Result<(), (usize, &str)> {
                 return Err((index, "error"));
             }
 
-            /*
             State::LC0 => match symbol {
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
-
-                }
-            }
-            */
-
-            State::ListIdLetter => {
-                if letters.contains(&symbol) || digits.contains(&symbol) {
-                    state = State::ListIdLetterOrDigit;
-                    index += 1;
-                    continue;
-                }
-
-                state = State::Error;
-                return Err((index, "error"));
-            }
-
-            State::ListIdLetterOrDigit => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::LC5,
                 ' ' => state = State::RightBracketSpaces,
                 ',' => state = State::Comma,
                 ']' => state = State::RightBracket,
@@ -238,6 +327,106 @@ pub fn is_for(string: &str, end_terminal: char) -> Result<(), (usize, &str)> {
                 }
             }
 
+            State::LC1 => match symbol {
+                '0' | '1' | '2' | '3' | '4' => state = State::LC3,
+                '5' => state = State::LC4,
+                '6' | '7' | '8' | '9' => state = State::LC6,
+                ' ' => state = State::RightBracketSpaces,
+                ',' => state = State::Comma,
+                ']' => state = State::RightBracket,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::LC2 | State::LC3 | State::LC5 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => state = State::LC6,
+                ' ' => state = State::RightBracketSpaces,
+                ',' => state = State::Comma,
+                ']' => state = State::RightBracket,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::LC4 => match symbol {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' => state = State::LC6,
+                ' ' => state = State::RightBracketSpaces,
+                ',' => state = State::Comma,
+                ']' => state = State::RightBracket,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::LC6 => match symbol {
+                ' ' => state = State::RightBracketSpaces,
+                ',' => state = State::Comma,
+                ']' => state = State::RightBracket,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::ListIdLetter | State::ListIdLetterOrDigit => {
+                if letters.contains(&symbol) || digits.contains(&symbol) {
+                    // semantics
+                    list_id.push(symbol);
+
+                    if has_keyword(list_id.to_owned()) {
+                        state = State::Error;
+                        return Err((index, "id contains keyword"));
+                    }
+
+                    if list_id.len() > 8 {
+                        state = State::Error;
+                        return Err((index, "id is too long"));
+                    }
+
+
+                    state = State::ListIdLetterOrDigit;
+                    index += 1;
+                    continue;
+                }
+
+                if symbol == ',' {
+                    if used_ids.contains(&list_id) {
+                        state = State::Error;
+                        return Err((index, "this id already used"));
+                    } else {
+                        used_ids.push(list_id.to_owned());
+                    }
+
+                    state = State::Comma;
+                    index += 1;
+                    continue;
+                }
+
+                if symbol == ']' {
+                    if used_ids.contains(&list_id) {
+                        state = State::Error;
+                        return Err((index, "this id already used"));
+                    } else {
+                        used_ids.push(list_id.to_owned());
+                    }
+
+                    state = State::RightBracket;
+                    index += 1;
+                    continue;
+                }
+
+                state = State::Error;
+                return Err((index, "error"));
+            }
+
             State::Comma | State::CommaSpaces => {
                 if symbol == ' ' {
                     state = State::CommaSpaces;
@@ -246,6 +435,19 @@ pub fn is_for(string: &str, end_terminal: char) -> Result<(), (usize, &str)> {
                 }
 
                 if letters.contains(&symbol) {
+                    // semantics
+                    list_id = String::from(symbol);
+
+                    if has_keyword(list_id.to_owned()) {
+                        state = State::Error;
+                        return Err((index, "id contains keyword"));
+                    }
+
+                    if list_id.len() > 8 {
+                        state = State::Error;
+                        return Err((index, "id is too long"));
+                    }
+
                     state = State::ListIdLetter;
                     index += 1;
                     continue;
@@ -271,6 +473,16 @@ pub fn is_for(string: &str, end_terminal: char) -> Result<(), (usize, &str)> {
 
                 state = State::Error;
                 return Err((index, "error"));
+            }
+
+            State::RightBracket | State::RightBracketSpaces => match symbol {
+                ' ' => state = State::RightBracketSpaces,
+                ':' => state = State::Colon,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
             }
 
             State::Colon => match symbol {
@@ -1146,6 +1358,9 @@ pub fn is_for(string: &str, end_terminal: char) -> Result<(), (usize, &str)> {
     if state != State::Finish {
         return Err((index, "use end terminal for close chain"));
     }
+
+    // println!("first id = {}", id);
+    // println!("list ids = {:?}", used_ids);
 
     Ok(())
 }
