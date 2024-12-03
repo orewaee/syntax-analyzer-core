@@ -10,3 +10,23 @@ pub fn with_message(string: &str, index: usize, message: &str) {
     println!("{BLUE}{}{RESET}{}{}", right, wrong, other);
     println!("{RED}{}└─ {} ({}){RESET}", " ".repeat(index), message, index);
 }
+
+pub fn with_message_plain(string: &str, index: usize, message: &str) -> String {
+    let string = if string.len() == index { format!("{} ", string) } else { string.to_string() };
+
+    let right = &string[..index];
+    let wrong = &string[index..(index + 1)];
+    let other = &string[(index + 1)..];
+
+    format!("{}{}{}\n{}└─ {} ({})", right, wrong, other, " ".repeat(index), message, index)
+}
+
+pub fn with_message_html(string: &str, index: usize, message: &str) -> String {
+    let string = if string.len() == index { format!("{} ", string) } else { string.to_string() };
+
+    let right = &string[..index];
+    let wrong = &string[index..(index + 1)];
+    let other = &string[(index + 1)..];
+
+    format!("<span class='right'>{}</span><span class='wrong'>{}</span>{}<br><span class='wrong'>{}└─ {} ({})</span>", right, wrong, other, "&nbsp;".repeat(index), message, index)
+}
