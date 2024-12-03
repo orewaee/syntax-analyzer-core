@@ -1,15 +1,18 @@
 mod chain;
 mod cli;
 
-use crate::chain::constant::is_constant;
+use crate::chain::chain::is_for;
 
 fn main() {
-    let items = vec!["128", "99 ", "256", "256 ", "2asd32 "];
-    for item in items {
-        match is_constant(item) {
-            Ok(()) => cli::success::with_message(item, "is constant"),
-            Err(error) => cli::error::with_message(item, error.0, error.1)
+    let chains: Vec<&str> = vec![
+            "FOR F21A3 [IAX12, 25, J, 256] := -1 TO +1 DO;",
+        "FOR I := +10 TO +20 BY +100 DO;"
+    ];
+
+    for chain in chains {
+        match is_for(chain, ';') {
+            Ok(()) => println!("yes. \"{}\" is chain", chain),
+            Err(error) => cli::error::with_message(chain, error.0, error.1)
         }
-        println!();
     }
 }
