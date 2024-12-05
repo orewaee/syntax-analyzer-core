@@ -10,12 +10,20 @@ pub enum State {
     IdLetter, IdLetterOrDigit, IdSpaces,
 
 
+    // square brackets
+    LeftBracket, LeftBracketSpaces,
+    RightBracket, RightBracketSpaces,
+
+
     // list identifier
     ListIdLetter, ListIdLetterOrDigit,
 
 
     // list constant
-    LC0, LC1, LC2, LC3, LC4, LC5, LC6,
+    ListConstHead, ListConstBody,
+
+    
+    ListSpaces,
 
 
     // ":=" construction
@@ -24,10 +32,6 @@ pub enum State {
 
     // list comma
     Comma, CommaSpaces,
-
-    // square brackets
-    LeftBracket, LeftBracketSpaces,
-    RightBracket, RightBracketSpaces,
 
 
     // negative constant
