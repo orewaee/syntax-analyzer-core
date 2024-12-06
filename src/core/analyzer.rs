@@ -494,6 +494,12 @@ pub fn analyze(chain: &str, terminal: char) -> Result<(), (usize, &str)> {
             }
 
             State::DoO => {
+                if symbol == ' ' {
+                    state = State::DoO;
+                    index += 1;
+                    continue;
+                }
+
                 if symbol == terminal {
                     state = State::Finish;
                     index += 1;
