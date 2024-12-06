@@ -3,37 +3,24 @@ pub enum State {
     Start,
 
     // "for" keyword
-    ForF,
-    ForO,
-    ForR,
-    ForSpaces,
+    ForF, ForO, ForR, ForSpaces,
 
     // identifier
-    IdLetter,
-    IdLetterOrDigit,
-    IdSpaces,
+    Id, IdSpaces,
 
     // square brackets
-    LeftBracket,
-    LeftBracketSpaces,
-    RightBracket,
-    RightBracketSpaces,
+    LeftBracket, LeftBracketSpaces,
+    RightBracket, RightBracketSpaces,
 
-    // list identifier
-    ListIdLetter,
-    ListIdLetterOrDigit,
-
-    // list constant
-    ListConstHead,
-    ListConstBody,
-
-    ListSpaces,
+    // list items
+    ListId, ListConst, ListSpaces,
 
     // ":=" construction
     Colon, Equal, ColonEqualSpaces,
 
-    // list comma
-    Comma, CommaSpaces,
+    ConstSign, Const, ConstZero, ConstSpaces,
+
+    ToT, ToO,
 
     Error,
     Finish

@@ -1,2 +1,3 @@
-mod analyzer;
+pub mod analyzer;
 mod state;
+mod constants;
