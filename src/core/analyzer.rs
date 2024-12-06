@@ -226,20 +226,20 @@ pub fn analyze(chain: &str, terminal: char) -> Result<(), (usize, &str)> {
                     continue;
                 }
 
-                if symbol = '0' {
-                    state = State::ConstZero;
+                if symbol == '0' {
+                    state = State::StConstZero;
                     index += 1;
                     continue;
                 }
 
                 if symbol == '-' {
-                    state = State::ConstSign;
+                    state = State::StConstMinus;
                     index += 1;
                     continue;
                 }
 
                 if DIGITS[1..].contains(&symbol) {
-                    state = State::Const;
+                    state = State::StConst;
                     index += 1;
                     continue;
                 }
@@ -248,9 +248,9 @@ pub fn analyze(chain: &str, terminal: char) -> Result<(), (usize, &str)> {
                 return Err((index, "error"));
             }
 
-            State::ConstSign => {
+            State::StConstMinus => {
                 if DIGITS[1..].contains(&symbol) {
-                    state = State::Const;
+                    state = State::StConst;
                     index += 1;
                     continue;
                 }
@@ -259,15 +259,15 @@ pub fn analyze(chain: &str, terminal: char) -> Result<(), (usize, &str)> {
                 return Err((index, "error"));
             }
 
-            State::Const => {
+            State::StConst => {
                 if symbol == ' ' {
-                    state = State::ConstSpaces;
+                    state = State::StSpaces;
                     index += 1;
                     continue;
                 }
 
                 if DIGITS.contains(&symbol) {
-                    state = State::Const;
+                    state = State::StConst;
                     index += 1;
                     continue;
                 }
@@ -276,8 +276,8 @@ pub fn analyze(chain: &str, terminal: char) -> Result<(), (usize, &str)> {
                 return Err((index, "error"));
             }
 
-            State::ConstZero => match symbol {
-                ' ' => state = State::ConstSpaces,
+            State::StConstZero => match symbol {
+                ' ' => state = State::StSpaces,
 
                 _ => {
                     state = State::Error;
@@ -285,8 +285,8 @@ pub fn analyze(chain: &str, terminal: char) -> Result<(), (usize, &str)> {
                 }
             }
 
-            State::ConstSpaces => match symbol {
-                ' ' => state = State::ConstSpaces,
+            State::StSpaces => match symbol {
+                ' ' => state = State::StSpaces,
                 't' => state = State::ToT,
 
                 _ => {
@@ -302,6 +302,206 @@ pub fn analyze(chain: &str, terminal: char) -> Result<(), (usize, &str)> {
                     state = State::Error;
                     return Err((index, "error"));
                 }
+            }
+
+            State::ToO => match symbol {
+                ' ' => state = State::StNdSpaces,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::StNdSpaces => {
+                if symbol == ' ' {
+                    state = State::StNdSpaces;
+                    index += 1;
+                    continue;
+                }
+
+                if symbol == '0' {
+                    state = State::NdConstZero;
+                    index += 1;
+                    continue;
+                }
+
+                if symbol == '-' {
+                    state = State::NdConstMinus;
+                    index += 1;
+                    continue;
+                }
+
+                if DIGITS[1..].contains(&symbol) {
+                    state = State::NdConst;
+                    index += 1;
+                    continue;
+                }
+
+                state = State::Error;
+                return Err((index, "error"));
+            }
+
+            State::NdConstMinus => {
+                if DIGITS[1..].contains(&symbol) {
+                    state = State::NdConst;
+                    index += 1;
+                    continue;
+                }
+
+                state = State::Error;
+                return Err((index, "error"));
+            }
+
+            State::NdConst => {
+                if symbol == ' ' {
+                    state = State::NdSpaces;
+                    index += 1;
+                    continue;
+                }
+
+                if DIGITS.contains(&symbol) {
+                    state = State::NdConst;
+                    index += 1;
+                    continue;
+                }
+
+                state = State::Error;
+                return Err((index, "error"));
+            }
+
+            State::NdConstZero => match symbol {
+                ' ' => state = State::NdSpaces,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdSpaces => match symbol {
+                ' ' => state = State::NdSpaces,
+                'b' => state = State::ByB,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::ByB => match symbol {
+                'y' => state = State::ByY,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::ByY => match symbol {
+                ' ' => state = State::NdRdSpaces,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::NdRdSpaces => {
+                if symbol == ' ' {
+                    state = State::NdRdSpaces;
+                    index += 1;
+                    continue;
+                }
+
+                if symbol == '0' {
+                    state = State::RdConstZero;
+                    index += 1;
+                    continue;
+                }
+
+                if symbol == '-' {
+                    state = State::RdConstMinus;
+                    index += 1;
+                    continue;
+                }
+
+                if DIGITS[1..].contains(&symbol) {
+                    state = State::RdConst;
+                    index += 1;
+                    continue;
+                }
+
+                state = State::Error;
+                return Err((index, "error"));
+            }
+
+            State::RdConstMinus => {
+                if DIGITS[1..].contains(&symbol) {
+                    state = State::RdConst;
+                    index += 1;
+                    continue;
+                }
+
+                state = State::Error;
+                return Err((index, "error"));
+            }
+
+            State::RdConst => {
+                if symbol == ' ' {
+                    state = State::RdSpaces;
+                    index += 1;
+                    continue;
+                }
+
+                if DIGITS.contains(&symbol) {
+                    state = State::RdConst;
+                    index += 1;
+                    continue;
+                }
+
+                state = State::Error;
+                return Err((index, "error"));
+            }
+
+            State::RdConstZero => match symbol {
+                ' ' => state = State::RdSpaces,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::RdSpaces => match symbol {
+                ' ' => state = State::RdSpaces,
+                'd' => state = State::DoD,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::DoD => match symbol {
+                'o' => state = State::DoO,
+
+                _ => {
+                    state = State::Error;
+                    return Err((index, "error"));
+                }
+            }
+
+            State::DoO => {
+                if symbol == terminal {
+                    state = State::Finish;
+                    index += 1;
+                    continue;
+                }
+
+                state = State::Error;
+                return Err((index, "error"));
             }
 
             _ => {

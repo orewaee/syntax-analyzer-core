@@ -18,9 +18,18 @@ pub enum State {
     // ":=" construction
     Colon, Equal, ColonEqualSpaces,
 
-    ConstSign, Const, ConstZero, ConstSpaces,
+    // constants
+    StConstMinus, StConst, StConstZero,
+    NdConstMinus, NdConst, NdConstZero,
+    RdConstMinus, RdConst, RdConstZero,
 
+    // indents before and after constants
+    StSpaces, StNdSpaces, NdSpaces, NdRdSpaces, RdSpaces,
+
+    // "to", "by" and "do" constants
     ToT, ToO,
+    ByB, ByY,
+    DoD, DoO,
 
     Error,
     Finish
