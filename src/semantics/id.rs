@@ -1,21 +1,21 @@
 pub struct IdSemantics {
     id: String,
-    pub ids: Vec<String>
+    pub vec: Vec<String>
 }
 
 impl IdSemantics {
     pub fn new() -> IdSemantics {
         IdSemantics {
             id: String::new(),
-            ids: Vec::new()
+            vec: Vec::new()
         }
     }
 
-    pub fn push_symbol(&mut self, symbol: char) {
+    pub fn push(&mut self, symbol: char) {
         self.id.push(symbol);
     }
 
-    pub fn  valid_length(&mut self) -> bool {
+    pub fn valid_length(&mut self) -> bool {
         (self.id.len() > 0) && (self.id.len() <= 8)
     }
 
@@ -32,27 +32,11 @@ impl IdSemantics {
     }
 
     pub fn already_exists(&mut self) -> bool {
-        self.ids.contains(&self.id)
+        self.vec.contains(&self.id)
     }
 
-    pub fn validate(&mut self) -> Result<(), String> {
-        if !self.valid_length() {
-            return Err(String::from("id length should be from 1 to 8 chars"));
-        }
-
-        if !self.has_keyword() {
-            return Err(String::from("id should not include keywords"));
-        }
-
-        if !self.already_exists() {
-            return Err(String::from("ids must not be repeated"));
-        }
-
-        Ok(())
-    }
-
-    pub fn save_id(&mut self) {
-        self.ids.push(self.id.to_owned());
+    pub fn save(&mut self) {
+        self.vec.push(self.id.to_owned());
         self.id = String::new();
     }
 }
