@@ -1,10 +1,11 @@
+use crate::cli::semantics::semantics_html;
 use crate::core::state::State;
 use crate::core::constants::{LETTERS, DIGITS};
 
 use crate::semantics::id::IdSemantics;
 use crate::semantics::unsigned_const::UnsignedConstSemantics;
 
-pub fn analyze(chain: &str, terminal: char) -> Result<(), (usize, &str)> {
+pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
     let chars = chain
         .to_ascii_lowercase()
         .chars().collect::<Vec<char>>();
@@ -664,7 +665,5 @@ pub fn analyze(chain: &str, terminal: char) -> Result<(), (usize, &str)> {
         return Err((index, "use end terminal for close chain"));
     }
 
-    // println!("{:?}", id_semantics.ids);
-
-    Ok(())
+    Ok(semantics_html(id_semantics, unsigned_const_semantics))
 }
