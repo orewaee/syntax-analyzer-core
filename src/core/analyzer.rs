@@ -1,6 +1,9 @@
 use crate::core::state::State;
 use crate::core::constants::{LETTERS, DIGITS};
 
+use crate::semantics::id::IdSemantics;
+use crate::semantics::unsigned_const::UnsignedConstSemantics;
+
 pub fn analyze(chain: &str, terminal: char) -> Result<(), (usize, &str)> {
     let chars = chain
         .to_ascii_lowercase()
@@ -10,9 +13,12 @@ pub fn analyze(chain: &str, terminal: char) -> Result<(), (usize, &str)> {
     let mut index = 0;
     let mut symbol: char;
 
+    let mut id_semantics = IdSemantics::new();
+    let mut unsigned_const_semantics = UnsignedConstSemantics::new();
+
     while index < chain.len() && state != State::Finish && state != State::Error {
         symbol = chars[index];
-        println!("symbol = '{symbol}'; state = {state:?}");
+        // println!("symbol = '{symbol}'; state = {state:?}");
 
         match state {
             State::Start => match symbol {
@@ -59,6 +65,8 @@ pub fn analyze(chain: &str, terminal: char) -> Result<(), (usize, &str)> {
                 }
 
                 if LETTERS.contains(&symbol) {
+                    id_semantics.push(symbol);
+
                     state = State::Id;
                     index += 1;
                     continue;
@@ -70,24 +78,77 @@ pub fn analyze(chain: &str, terminal: char) -> Result<(), (usize, &str)> {
 
             State::Id => {
                 if symbol == ' ' {
+                    if !id_semantics.valid_length() {
+                        state = State::Error;
+                        return Err((index, "id length should be from 1 to 8 chars"));
+                    }
+
+                    if id_semantics.has_keyword() {
+                        state = State::Error;
+                        return Err((index, "id should not include keywords"));
+                    }
+
+                    if id_semantics.already_exists() {
+                        state = State::Error;
+                        return Err((index, "ids must not be repeated"));
+                    }
+
+                    id_semantics.save();
+
                     state = State::IdSpaces;
                     index += 1;
                     continue;
                 }
 
                 if symbol == ':' {
+                    if !id_semantics.valid_length() {
+                        state = State::Error;
+                        return Err((index, "id length should be from 1 to 8 chars"));
+                    }
+
+                    if id_semantics.has_keyword() {
+                        state = State::Error;
+                        return Err((index, "id should not include keywords"));
+                    }
+
+                    if id_semantics.already_exists() {
+                        state = State::Error;
+                        return Err((index, "ids must not be repeated"));
+                    }
+
+                    id_semantics.save();
+
                     state = State::Colon;
                     index += 1;
                     continue;
                 }
 
                 if symbol == '[' {
+                    if !id_semantics.valid_length() {
+                        state = State::Error;
+                        return Err((index, "id length should be from 1 to 8 chars"));
+                    }
+
+                    if id_semantics.has_keyword() {
+                        state = State::Error;
+                        return Err((index, "id should not include keywords"));
+                    }
+
+                    if id_semantics.already_exists() {
+                        state = State::Error;
+                        return Err((index, "ids must not be repeated"));
+                    }
+
+                    id_semantics.save();
+
                     state = State::LeftBracket;
                     index += 1;
                     continue;
                 }
 
                 if LETTERS.contains(&symbol) || DIGITS.contains(&symbol) {
+                    id_semantics.push(symbol);
+
                     state = State::Id;
                     index += 1;
                     continue;
@@ -116,12 +177,16 @@ pub fn analyze(chain: &str, terminal: char) -> Result<(), (usize, &str)> {
                 }
 
                 if LETTERS.contains(&symbol) {
+                    id_semantics.push(symbol);
+
                     state = State::ListId;
                     index += 1;
                     continue;
                 }
 
                 if DIGITS[1..].contains(&symbol) {
+                    unsigned_const_semantics.push(symbol);
+
                     state = State::ListConst;
                     index += 1;
                     continue;
@@ -133,24 +198,77 @@ pub fn analyze(chain: &str, terminal: char) -> Result<(), (usize, &str)> {
 
             State::ListId => {
                 if symbol == ' ' {
+                    if !id_semantics.valid_length() {
+                        state = State::Error;
+                        return Err((index, "id length should be from 1 to 8 chars"));
+                    }
+
+                    if id_semantics.has_keyword() {
+                        state = State::Error;
+                        return Err((index, "id should not include keywords"));
+                    }
+
+                    if id_semantics.already_exists() {
+                        state = State::Error;
+                        return Err((index, "ids must not be repeated"));
+                    }
+
+                    id_semantics.save();
+
                     state = State::ListSpaces;
                     index += 1;
                     continue;
                 }
 
                 if symbol == ',' {
+                    if !id_semantics.valid_length() {
+                        state = State::Error;
+                        return Err((index, "id length should be from 1 to 8 chars"));
+                    }
+
+                    if id_semantics.has_keyword() {
+                        state = State::Error;
+                        return Err((index, "id should not include keywords"));
+                    }
+
+                    if id_semantics.already_exists() {
+                        state = State::Error;
+                        return Err((index, "ids must not be repeated"));
+                    }
+
+                    id_semantics.save();
+
                     state = State::LeftBracket;
                     index += 1;
                     continue;
                 }
 
                 if symbol == ']' {
+                    if !id_semantics.valid_length() {
+                        state = State::Error;
+                        return Err((index, "id length should be from 1 to 8 chars"));
+                    }
+
+                    if id_semantics.has_keyword() {
+                        state = State::Error;
+                        return Err((index, "id should not include keywords"));
+                    }
+
+                    if id_semantics.already_exists() {
+                        state = State::Error;
+                        return Err((index, "ids must not be repeated"));
+                    }
+
+                    id_semantics.save();
+
                     state = State::RightBracket;
                     index += 1;
                     continue;
                 }
 
                 if LETTERS.contains(&symbol) || DIGITS.contains(&symbol) {
+                    id_semantics.push(symbol);
+
                     state = State::ListId;
                     index += 1;
                     continue;
@@ -162,24 +280,47 @@ pub fn analyze(chain: &str, terminal: char) -> Result<(), (usize, &str)> {
 
             State::ListConst => {
                 if symbol == ' ' {
+                    if !unsigned_const_semantics.valid() {
+                        state = State::Error;
+                        return Err((index, "constant must be between 1 and 256"));
+                    }
+
+                    unsigned_const_semantics.save();
+
                     state = State::ListSpaces;
                     index += 1;
                     continue;
                 }
 
                 if symbol == ',' {
+                    if !unsigned_const_semantics.valid() {
+                        state = State::Error;
+                        return Err((index, "constant must be between 1 and 256"));
+                    }
+
+                    unsigned_const_semantics.save();
+
                     state = State::LeftBracket;
                     index += 1;
                     continue;
                 }
 
                 if symbol == ']' {
+                    if !unsigned_const_semantics.valid() {
+                        state = State::Error;
+                        return Err((index, "constant must be between 1 and 256"));
+                    }
+
+                    unsigned_const_semantics.save();
+
                     state = State::RightBracket;
                     index += 1;
                     continue;
                 }
 
                 if DIGITS.contains(&symbol) {
+                    unsigned_const_semantics.push(symbol);
+
                     state = State::ListConst;
                     index += 1;
                     continue;
@@ -522,6 +663,8 @@ pub fn analyze(chain: &str, terminal: char) -> Result<(), (usize, &str)> {
     if state != State::Finish {
         return Err((index, "use end terminal for close chain"));
     }
+
+    // println!("{:?}", id_semantics.ids);
 
     Ok(())
 }
