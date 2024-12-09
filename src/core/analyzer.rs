@@ -1,9 +1,10 @@
-use crate::cli::semantics::semantics_html;
 use crate::core::state::State;
 use crate::core::constants::{LETTERS, DIGITS};
 
 use crate::semantics::id::IdSemantics;
 use crate::semantics::unsigned_const::UnsignedConstSemantics;
+
+use crate::cli::semantics::semantics_html;
 
 pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
     let chars = chain
