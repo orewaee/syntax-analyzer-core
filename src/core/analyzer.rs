@@ -7,6 +7,8 @@ use crate::semantics::unsigned_const::UnsignedConstSemantics;
 use crate::cli::semantics::semantics_html;
 
 pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
+    println!("analyzing {}... ", chain);
+
     let chars = chain
         .to_ascii_lowercase()
         .chars().collect::<Vec<char>>();
@@ -75,7 +77,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "error"));
+                return Err((index, "maybe you want to use letter"));
             }
 
             State::Id => {
@@ -157,7 +159,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "error"));
+                return Err((index, "maybe you want to use \":\", \"[\", a|..|z or 0|..|9"));
             }
 
             State::IdSpaces => match symbol {
@@ -167,7 +169,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "error"));
+                    return Err((index, "maybe you want to use \":\" or \"[\""));
                 }
             }
 
@@ -195,7 +197,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "error"));
+                return Err((index, "maybe you want to use \":\", \"[\", a|..|z or 1|..|9"));
             }
 
             State::ListId => {
@@ -277,7 +279,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "error"));
+                return Err((index, "maybe you want to use \",\", \"]\", a|..|z or 0|..|9"));
             }
 
             State::ListConst => {
@@ -329,7 +331,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "error"));
+                return Err((index, "maybe you want to use \",\", \"]\" or 0|..|9"));
             }
 
             State::ListSpaces => match symbol {
@@ -339,7 +341,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "error"));
+                    return Err((index, "maybe you want to use \",\" or \"]\""));
                 }
             }
 
@@ -349,7 +351,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "error"));
+                    return Err((index, "maybe you want to use \":\""));
                 }
             }
 
@@ -358,7 +360,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "error"));
+                    return Err((index, "maybe you want to use \"=\""));
                 }
             }
 
@@ -388,7 +390,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "error"));
+                return Err((index, "maybe you want to use \"0\", \"-\" or 1|..|9"));
             }
 
             State::StConstMinus => {
@@ -399,7 +401,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "error"));
+                return Err((index, "maybe you want to use 1|..|9"));
             }
 
             State::StConst => {
@@ -416,7 +418,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "error"));
+                return Err((index, "maybe you want to use 0|..|9"));
             }
 
             State::StConstZero => match symbol {
@@ -434,7 +436,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "error"));
+                    return Err((index, "maybe you want to use \"t\""));
                 }
             }
 
@@ -443,7 +445,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "error"));
+                    return Err((index, "maybe you want to use \"o\""));
                 }
             }
 
@@ -452,7 +454,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "error"));
+                    return Err((index, "maybe you want to use space"));
                 }
             }
 
@@ -482,7 +484,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "error"));
+                return Err((index, "maybe you want to use \"0\", \"-\" or 1|..|9"));
             }
 
             State::NdConstMinus => {
@@ -493,7 +495,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "error"));
+                return Err((index, "maybe you want to use 1|..|9"));
             }
 
             State::NdConst => {
@@ -510,7 +512,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "error"));
+                return Err((index, "maybe you want to use 0|..|9"));
             }
 
             State::NdConstZero => match symbol {
@@ -518,7 +520,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "error"));
+                    return Err((index, "maybe you want to use space"));
                 }
             }
 
@@ -529,7 +531,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "error"));
+                    return Err((index, "maybe you want to use \"b\" or \"d\""));
                 }
             }
 
@@ -538,7 +540,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "error"));
+                    return Err((index, "maybe you want to use \"y\""));
                 }
             }
 
@@ -547,7 +549,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "error"));
+                    return Err((index, "maybe you want to use space"));
                 }
             }
 
@@ -577,7 +579,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "error"));
+                return Err((index, "maybe you want to use \"0\", \"-\" or 1|..|9"));
             }
 
             State::RdConstMinus => {
@@ -588,7 +590,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "error"));
+                return Err((index, "maybe you want to use 1|..|9"));
             }
 
             State::RdConst => {
@@ -605,7 +607,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "error"));
+                return Err((index, "maybe you want to use 0|..|9"));
             }
 
             State::RdConstZero => match symbol {
@@ -613,7 +615,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "error"));
+                    return Err((index, "maybe you want to use space"));
                 }
             }
 
@@ -623,7 +625,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "error"));
+                    return Err((index, "maybe you want to use \"d\""));
                 }
             }
 
@@ -632,7 +634,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "error"));
+                    return Err((index, "maybe you want to use \"o\""));
                 }
             }
 
@@ -650,7 +652,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "error"));
+                return Err((index, "maybe you want to use terminal"));
             }
 
             _ => {
