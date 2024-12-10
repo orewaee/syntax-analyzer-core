@@ -3,6 +3,7 @@ use crate::core::constants::{LETTERS, DIGITS};
 
 use crate::semantics::id::IdSemantics;
 use crate::semantics::unsigned_const::UnsignedConstSemantics;
+use crate::semantics::signed_const::SignedConstSemantics;
 
 use crate::cli::semantics::semantics_html;
 
@@ -19,6 +20,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
     let mut id_semantics = IdSemantics::new();
     let mut unsigned_const_semantics = UnsignedConstSemantics::new();
+    let mut signed_const_semantics = SignedConstSemantics::new();
 
     while index < chain.len() && state != State::Finish && state != State::Error {
         symbol = chars[index];
@@ -372,18 +374,24 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 if symbol == '0' {
+                    signed_const_semantics.push(symbol);
+
                     state = State::StConstZero;
                     index += 1;
                     continue;
                 }
 
                 if symbol == '-' {
+                    signed_const_semantics.push(symbol);
+
                     state = State::StConstMinus;
                     index += 1;
                     continue;
                 }
 
                 if DIGITS[1..].contains(&symbol) {
+                    signed_const_semantics.push(symbol);
+
                     state = State::StConst;
                     index += 1;
                     continue;
@@ -395,6 +403,8 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
             State::StConstMinus => {
                 if DIGITS[1..].contains(&symbol) {
+                    signed_const_semantics.push(symbol);
+
                     state = State::StConst;
                     index += 1;
                     continue;
@@ -406,12 +416,21 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
             State::StConst => {
                 if symbol == ' ' {
+                    if !signed_const_semantics.valid() {
+                        state = State::Error;
+                        return Err((index, "constant must be between -32768 and 32767"));
+                    }
+
+                    signed_const_semantics.save();
+
                     state = State::StSpaces;
                     index += 1;
                     continue;
                 }
 
                 if DIGITS.contains(&symbol) {
+                    signed_const_semantics.push(symbol);
+
                     state = State::StConst;
                     index += 1;
                     continue;
@@ -422,7 +441,16 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
             }
 
             State::StConstZero => match symbol {
-                ' ' => state = State::StSpaces,
+                ' ' => {
+                    if !signed_const_semantics.valid() {
+                        state = State::Error;
+                        return Err((index, "constant must be between -32768 and 32767"));
+                    }
+
+                    signed_const_semantics.save();
+
+                    state = State::StSpaces
+                },
 
                 _ => {
                     state = State::Error;
@@ -466,18 +494,24 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 if symbol == '0' {
+                    signed_const_semantics.push(symbol);
+
                     state = State::NdConstZero;
                     index += 1;
                     continue;
                 }
 
                 if symbol == '-' {
+                    signed_const_semantics.push(symbol);
+
                     state = State::NdConstMinus;
                     index += 1;
                     continue;
                 }
 
                 if DIGITS[1..].contains(&symbol) {
+                    signed_const_semantics.push(symbol);
+
                     state = State::NdConst;
                     index += 1;
                     continue;
@@ -489,6 +523,8 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
             State::NdConstMinus => {
                 if DIGITS[1..].contains(&symbol) {
+                    signed_const_semantics.push(symbol);
+
                     state = State::NdConst;
                     index += 1;
                     continue;
@@ -500,12 +536,21 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
             State::NdConst => {
                 if symbol == ' ' {
+                    if !signed_const_semantics.valid() {
+                        state = State::Error;
+                        return Err((index, "constant must be between -32768 and 32767"));
+                    }
+
+                    signed_const_semantics.save();
+
                     state = State::NdSpaces;
                     index += 1;
                     continue;
                 }
 
                 if DIGITS.contains(&symbol) {
+                    signed_const_semantics.push(symbol);
+
                     state = State::NdConst;
                     index += 1;
                     continue;
@@ -516,7 +561,16 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
             }
 
             State::NdConstZero => match symbol {
-                ' ' => state = State::NdSpaces,
+                ' ' => {
+                    if !signed_const_semantics.valid() {
+                        state = State::Error;
+                        return Err((index, "constant must be between -32768 and 32767"));
+                    }
+
+                    signed_const_semantics.save();
+
+                    state = State::NdSpaces
+                },
 
                 _ => {
                     state = State::Error;
@@ -561,18 +615,24 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 if symbol == '0' {
+                    signed_const_semantics.push(symbol);
+
                     state = State::RdConstZero;
                     index += 1;
                     continue;
                 }
 
                 if symbol == '-' {
+                    signed_const_semantics.push(symbol);
+
                     state = State::RdConstMinus;
                     index += 1;
                     continue;
                 }
 
                 if DIGITS[1..].contains(&symbol) {
+                    signed_const_semantics.push(symbol);
+
                     state = State::RdConst;
                     index += 1;
                     continue;
@@ -584,6 +644,8 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
             State::RdConstMinus => {
                 if DIGITS[1..].contains(&symbol) {
+                    signed_const_semantics.push(symbol);
+
                     state = State::RdConst;
                     index += 1;
                     continue;
@@ -595,12 +657,21 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
             State::RdConst => {
                 if symbol == ' ' {
+                    if !signed_const_semantics.valid() {
+                        state = State::Error;
+                        return Err((index, "constant must be between -32768 and 32767"));
+                    }
+
+                    signed_const_semantics.save();
+
                     state = State::RdSpaces;
                     index += 1;
                     continue;
                 }
 
                 if DIGITS.contains(&symbol) {
+                    signed_const_semantics.push(symbol);
+
                     state = State::RdConst;
                     index += 1;
                     continue;
@@ -611,7 +682,16 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
             }
 
             State::RdConstZero => match symbol {
-                ' ' => state = State::RdSpaces,
+                ' ' => {
+                    if !signed_const_semantics.valid() {
+                        state = State::Error;
+                        return Err((index, "constant must be between -32768 and 32767"));
+                    }
+
+                    signed_const_semantics.save();
+
+                    state = State::RdSpaces
+                },
 
                 _ => {
                     state = State::Error;
