@@ -7,6 +7,8 @@ pub fn semantics_html(
     unsigned_const_semantics: UnsignedConstSemantics,
     signed_const_semantics: SignedConstSemantics
 ) -> String {
+
+
     let semantics = format!(
         "ids: <span class=\"accent\">{:?}</span><br>unsigned_constants: <span class=\"accent\">{:?}</span><br>signed_constants: <span class=\"accent\">{:?}</span>",
         id_semantics.vec, unsigned_const_semantics.vec, signed_const_semantics.vec

@@ -748,5 +748,5 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
         return Err((index, "use end terminal for close chain"));
     }
 
-    Ok(semantics_html(id_semantics, unsigned_const_semantics))
+    Ok(semantics_html(id_semantics, unsigned_const_semantics, signed_const_semantics))
 }
