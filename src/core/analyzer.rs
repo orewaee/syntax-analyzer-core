@@ -89,9 +89,9 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                         return Err((index, "id length should be from 1 to 8 chars"));
                     }
 
-                    if id_semantics.has_keyword() {
+                    if id_semantics.eq_keyword() {
                         state = State::Error;
-                        return Err((index, "id should not include keywords"));
+                        return Err((index, "id should not equal keywords"));
                     }
 
                     if id_semantics.already_exists() {
@@ -112,9 +112,9 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                         return Err((index, "id length should be from 1 to 8 chars"));
                     }
 
-                    if id_semantics.has_keyword() {
+                    if id_semantics.eq_keyword() {
                         state = State::Error;
-                        return Err((index, "id should not include keywords"));
+                        return Err((index, "id should not equal keywords"));
                     }
 
                     if id_semantics.already_exists() {
@@ -135,9 +135,9 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                         return Err((index, "id length should be from 1 to 8 chars"));
                     }
 
-                    if id_semantics.has_keyword() {
+                    if id_semantics.eq_keyword() {
                         state = State::Error;
-                        return Err((index, "id should not include keywords"));
+                        return Err((index, "id should not equal keywords"));
                     }
 
                     if id_semantics.already_exists() {
@@ -209,9 +209,9 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                         return Err((index, "id length should be from 1 to 8 chars"));
                     }
 
-                    if id_semantics.has_keyword() {
+                    if id_semantics.eq_keyword() {
                         state = State::Error;
-                        return Err((index, "id should not include keywords"));
+                        return Err((index, "id should not equal keywords"));
                     }
 
                     if id_semantics.already_exists() {
@@ -232,9 +232,9 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                         return Err((index, "id length should be from 1 to 8 chars"));
                     }
 
-                    if id_semantics.has_keyword() {
+                    if id_semantics.eq_keyword() {
                         state = State::Error;
-                        return Err((index, "id should not include keywords"));
+                        return Err((index, "id should not equal keywords"));
                     }
 
                     if id_semantics.already_exists() {
@@ -255,9 +255,9 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                         return Err((index, "id length should be from 1 to 8 chars"));
                     }
 
-                    if id_semantics.has_keyword() {
+                    if id_semantics.eq_keyword() {
                         state = State::Error;
-                        return Err((index, "id should not include keywords"));
+                        return Err((index, "id should not equal keywords"));
                     }
 
                     if id_semantics.already_exists() {
@@ -375,6 +375,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 if symbol == '0' {
                     signed_const_semantics.push(symbol);
+                    signed_const_semantics.update_index(index);
 
                     state = State::StConstZero;
                     index += 1;
@@ -383,6 +384,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 if symbol == '-' {
                     signed_const_semantics.push(symbol);
+                    signed_const_semantics.update_index(index);
 
                     state = State::StConstMinus;
                     index += 1;
@@ -391,6 +393,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 if DIGITS[1..].contains(&symbol) {
                     signed_const_semantics.push(symbol);
+                    signed_const_semantics.update_index(index);
 
                     state = State::StConst;
                     index += 1;
@@ -404,6 +407,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
             State::StConstMinus => {
                 if DIGITS[1..].contains(&symbol) {
                     signed_const_semantics.push(symbol);
+                    signed_const_semantics.update_index(index);
 
                     state = State::StConst;
                     index += 1;
@@ -430,6 +434,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 if DIGITS.contains(&symbol) {
                     signed_const_semantics.push(symbol);
+                    signed_const_semantics.update_index(index);
 
                     state = State::StConst;
                     index += 1;
@@ -495,6 +500,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 if symbol == '0' {
                     signed_const_semantics.push(symbol);
+                    signed_const_semantics.update_index(index);
 
                     state = State::NdConstZero;
                     index += 1;
@@ -503,6 +509,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 if symbol == '-' {
                     signed_const_semantics.push(symbol);
+                    signed_const_semantics.update_index(index);
 
                     state = State::NdConstMinus;
                     index += 1;
@@ -511,6 +518,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 if DIGITS[1..].contains(&symbol) {
                     signed_const_semantics.push(symbol);
+                    signed_const_semantics.update_index(index);
 
                     state = State::NdConst;
                     index += 1;
@@ -524,6 +532,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
             State::NdConstMinus => {
                 if DIGITS[1..].contains(&symbol) {
                     signed_const_semantics.push(symbol);
+                    signed_const_semantics.update_index(index);
 
                     state = State::NdConst;
                     index += 1;
@@ -550,6 +559,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 if DIGITS.contains(&symbol) {
                     signed_const_semantics.push(symbol);
+                    signed_const_semantics.update_index(index);
 
                     state = State::NdConst;
                     index += 1;
@@ -616,6 +626,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 if symbol == '0' {
                     signed_const_semantics.push(symbol);
+                    signed_const_semantics.update_index(index);
 
                     state = State::RdConstZero;
                     index += 1;
@@ -624,6 +635,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 if symbol == '-' {
                     signed_const_semantics.push(symbol);
+                    signed_const_semantics.update_index(index);
 
                     state = State::RdConstMinus;
                     index += 1;
@@ -632,6 +644,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 if DIGITS[1..].contains(&symbol) {
                     signed_const_semantics.push(symbol);
+                    signed_const_semantics.update_index(index);
 
                     state = State::RdConst;
                     index += 1;
@@ -645,6 +658,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
             State::RdConstMinus => {
                 if DIGITS[1..].contains(&symbol) {
                     signed_const_semantics.push(symbol);
+                    signed_const_semantics.update_index(index);
 
                     state = State::RdConst;
                     index += 1;
@@ -671,6 +685,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 if DIGITS.contains(&symbol) {
                     signed_const_semantics.push(symbol);
+                    signed_const_semantics.update_index(index);
 
                     state = State::RdConst;
                     index += 1;
@@ -748,5 +763,16 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
         return Err((index, "use end terminal for close chain"));
     }
 
-    Ok(semantics_html(id_semantics, unsigned_const_semantics, signed_const_semantics))
+    if !signed_const_semantics.check_range() {
+        return Err((signed_const_semantics.latest_index, "invalid range"));
+    }
+
+    Ok(semantics_html(
+        id_semantics.vec.clone(),
+        unsigned_const_semantics.vec.clone(),
+        signed_const_semantics.vec.clone(),
+        id_semantics.semantics(),
+        signed_const_semantics.get_range().clone(),
+        signed_const_semantics.iterations().clone()
+    ))
 }

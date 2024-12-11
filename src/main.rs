@@ -6,7 +6,7 @@ use crate::core::analyzer::analyze;
 
 fn main() {
     let chains: Vec<&str> = vec![
-        "FOR F21A3 [IAX12345, 25, J, 256] := -1 TO 1 DO;",
+        "FOR F21A3 [IAX12345, 25, J, 256] := -1 TO 1 BY 1 DO;",
         "FOR I := " /* +10 TO +20 BY +100 DO; */
     ];
 

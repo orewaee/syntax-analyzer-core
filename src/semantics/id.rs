@@ -19,11 +19,11 @@ impl IdSemantics {
         (self.id.len() > 0) && (self.id.len() <= 8)
     }
 
-    pub fn has_keyword(&mut self) -> bool {
+    pub fn eq_keyword(&mut self) -> bool {
         let keywords = vec!["for", "to", "by", "do"];
 
         for keyword in keywords {
-            if self.id.contains(keyword) {
+            if self.id.eq_ignore_ascii_case(&keyword) {
                 return true;
             }
         }
@@ -38,5 +38,11 @@ impl IdSemantics {
     pub fn save(&mut self) {
         self.vec.push(self.id.to_owned());
         self.id = String::new();
+    }
+
+    pub fn semantics(&mut self) -> (String, Vec<String>) {
+        let ids = self.vec[1..].to_vec();
+
+        (self.vec[0].to_owned(), ids)
     }
 }
