@@ -28,5 +28,13 @@ pub fn with_message_html(string: &str, index: usize, message: &str) -> String {
     let wrong = &string[index..(index + 1)];
     let other = &string[(index + 1)..];
 
-    format!("<span class='right'>{}</span><span class='wrong'>{}</span>{}<br><span class='wrong'>{}└─ {} ({})</span>", right, wrong, other, "&nbsp;".repeat(index), message, index)
+    println!("right: \"{right}\"");
+    println!("wrong: \"{wrong}\"");
+    println!("other: \"{other}\"");
+
+    format!(
+        "<span class='right'>{}</span><span class='wrong'>{}</span>{}<br><span class='wrong'>{}└─ {} ({})</span>",
+        right.replace(" ", "&nbsp;"), wrong.replace(" ", "&nbsp;"), other.replace(" ", "&nbsp;"),
+        "&nbsp;".repeat(right.len()), message, index
+    )
 }
