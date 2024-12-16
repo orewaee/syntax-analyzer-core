@@ -4,8 +4,8 @@ pub struct UnsignedConstSemantics {
 }
 
 impl UnsignedConstSemantics {
-    pub fn new() -> UnsignedConstSemantics {
-        UnsignedConstSemantics {
+    pub fn new() -> Self {
+        Self {
             unsigned_const: String::new(),
             vec: Vec::new()
         }

@@ -9,14 +9,14 @@ pub enum State {
     Id, IdSpaces,
 
     // square brackets
-    LeftBracket, LeftBracketSpaces,
-    RightBracket, RightBracketSpaces,
+    LeftBracket,
+    RightBracket,
 
     // list items
     ListId, ListConst, ListSpaces,
 
     // ":=" construction
-    Colon, Equal, ColonEqualSpaces,
+    Colon, Equal,
 
     // constants
     StConstMinus, StConst, StConstZero,

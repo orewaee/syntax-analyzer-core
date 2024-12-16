@@ -6,7 +6,7 @@ pub struct SignedConstSemantics {
 
 impl SignedConstSemantics {
     pub fn new() -> Self {
-        SignedConstSemantics {
+        Self {
             latest_index: 0,
             signed_const: String::new(),
             vec: Vec::new(),
