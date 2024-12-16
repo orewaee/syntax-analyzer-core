@@ -4,8 +4,8 @@ pub struct IdSemantics {
 }
 
 impl IdSemantics {
-    pub fn new() -> IdSemantics {
-        IdSemantics {
+    pub fn new() -> Self {
+        Self {
             id: String::new(),
             vec: Vec::new()
         }
