@@ -6,8 +6,9 @@ use crate::semantics::unsigned_const::UnsignedConstSemantics;
 use crate::semantics::signed_const::SignedConstSemantics;
 
 use crate::cli::semantics::semantics_html;
+use crate::core::error_type::ErrorType;
 
-pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
+pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str, ErrorType)> {
     println!("analyzing {}... ", chain);
 
     let chars = chain
@@ -32,7 +33,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "maybe you want to use \"f\""));
+                    return Err((index, "maybe you want to use \"f\"", ErrorType::Syntax));
                 }
             }
 
@@ -41,7 +42,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "maybe you want to use \"o\""));
+                    return Err((index, "maybe you want to use \"o\"", ErrorType::Syntax));
                 }
             }
 
@@ -50,7 +51,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "maybe you want to use \"r\""));
+                    return Err((index, "maybe you want to use \"r\"", ErrorType::Syntax));
                 }
             }
 
@@ -59,7 +60,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "maybe you want to use \"r\""));
+                    return Err((index, "maybe you want to use \"r\"", ErrorType::Syntax));
                 }
             }
 
@@ -79,24 +80,24 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "maybe you want to use letter"));
+                return Err((index, "maybe you want to use letter", ErrorType::Syntax));
             }
 
             State::Id => {
                 if symbol == ' ' {
                     if !id_semantics.valid_length() {
                         state = State::Error;
-                        return Err((index, "id length should be from 1 to 8 chars"));
+                        return Err((index, "id length should be from 1 to 8 chars", ErrorType::Semantics));
                     }
 
                     if id_semantics.eq_keyword() {
                         state = State::Error;
-                        return Err((index, "id should not equal keywords"));
+                        return Err((index, "id should not equal keywords", ErrorType::Semantics));
                     }
 
                     if id_semantics.already_exists() {
                         state = State::Error;
-                        return Err((index, "ids must not be repeated"));
+                        return Err((index, "ids must not be repeated", ErrorType::Semantics));
                     }
 
                     id_semantics.save();
@@ -109,17 +110,17 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 if symbol == ':' {
                     if !id_semantics.valid_length() {
                         state = State::Error;
-                        return Err((index, "id length should be from 1 to 8 chars"));
+                        return Err((index, "id length should be from 1 to 8 chars", ErrorType::Semantics));
                     }
 
                     if id_semantics.eq_keyword() {
                         state = State::Error;
-                        return Err((index, "id should not equal keywords"));
+                        return Err((index, "id should not equal keywords", ErrorType::Semantics));
                     }
 
                     if id_semantics.already_exists() {
                         state = State::Error;
-                        return Err((index, "ids must not be repeated"));
+                        return Err((index, "ids must not be repeated", ErrorType::Semantics));
                     }
 
                     id_semantics.save();
@@ -132,17 +133,17 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 if symbol == '[' {
                     if !id_semantics.valid_length() {
                         state = State::Error;
-                        return Err((index, "id length should be from 1 to 8 chars"));
+                        return Err((index, "id length should be from 1 to 8 chars", ErrorType::Semantics));
                     }
 
                     if id_semantics.eq_keyword() {
                         state = State::Error;
-                        return Err((index, "id should not equal keywords"));
+                        return Err((index, "id should not equal keywords", ErrorType::Semantics));
                     }
 
                     if id_semantics.already_exists() {
                         state = State::Error;
-                        return Err((index, "ids must not be repeated"));
+                        return Err((index, "ids must not be repeated", ErrorType::Semantics));
                     }
 
                     id_semantics.save();
@@ -161,7 +162,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "maybe you want to use \":\", \"[\", a|..|z or 0|..|9"));
+                return Err((index, "maybe you want to use \":\", \"[\", a|..|z or 0|..|9", ErrorType::Syntax));
             }
 
             State::IdSpaces => match symbol {
@@ -171,7 +172,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "maybe you want to use \":\" or \"[\""));
+                    return Err((index, "maybe you want to use \":\" or \"[\"", ErrorType::Syntax));
                 }
             }
 
@@ -199,24 +200,24 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "maybe you want to use \":\", \"[\", a|..|z or 1|..|9"));
+                return Err((index, "maybe you want to use \":\", \"[\", a|..|z or 1|..|9", ErrorType::Syntax));
             }
 
             State::ListId => {
                 if symbol == ' ' {
                     if !id_semantics.valid_length() {
                         state = State::Error;
-                        return Err((index, "id length should be from 1 to 8 chars"));
+                        return Err((index, "id length should be from 1 to 8 chars", ErrorType::Semantics));
                     }
 
                     if id_semantics.eq_keyword() {
                         state = State::Error;
-                        return Err((index, "id should not equal keywords"));
+                        return Err((index, "id should not equal keywords", ErrorType::Semantics));
                     }
 
                     if id_semantics.already_exists() {
                         state = State::Error;
-                        return Err((index, "ids must not be repeated"));
+                        return Err((index, "ids must not be repeated", ErrorType::Semantics));
                     }
 
                     id_semantics.save();
@@ -229,17 +230,17 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 if symbol == ',' {
                     if !id_semantics.valid_length() {
                         state = State::Error;
-                        return Err((index, "id length should be from 1 to 8 chars"));
+                        return Err((index, "id length should be from 1 to 8 chars", ErrorType::Semantics));
                     }
 
                     if id_semantics.eq_keyword() {
                         state = State::Error;
-                        return Err((index, "id should not equal keywords"));
+                        return Err((index, "id should not equal keywords", ErrorType::Semantics));
                     }
 
                     if id_semantics.already_exists() {
                         state = State::Error;
-                        return Err((index, "ids must not be repeated"));
+                        return Err((index, "ids must not be repeated", ErrorType::Semantics));
                     }
 
                     id_semantics.save();
@@ -252,17 +253,17 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 if symbol == ']' {
                     if !id_semantics.valid_length() {
                         state = State::Error;
-                        return Err((index, "id length should be from 1 to 8 chars"));
+                        return Err((index, "id length should be from 1 to 8 chars", ErrorType::Semantics));
                     }
 
                     if id_semantics.eq_keyword() {
                         state = State::Error;
-                        return Err((index, "id should not equal keywords"));
+                        return Err((index, "id should not equal keywords", ErrorType::Semantics));
                     }
 
                     if id_semantics.already_exists() {
                         state = State::Error;
-                        return Err((index, "ids must not be repeated"));
+                        return Err((index, "ids must not be repeated", ErrorType::Semantics));
                     }
 
                     id_semantics.save();
@@ -281,14 +282,14 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "maybe you want to use \",\", \"]\", a|..|z or 0|..|9"));
+                return Err((index, "maybe you want to use \",\", \"]\", a|..|z or 0|..|9", ErrorType::Syntax));
             }
 
             State::ListConst => {
                 if symbol == ' ' {
                     if !unsigned_const_semantics.valid() {
                         state = State::Error;
-                        return Err((index, "constant must be between 1 and 256"));
+                        return Err((index, "constant must be between 1 and 256", ErrorType::Semantics));
                     }
 
                     unsigned_const_semantics.save();
@@ -301,7 +302,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 if symbol == ',' {
                     if !unsigned_const_semantics.valid() {
                         state = State::Error;
-                        return Err((index, "constant must be between 1 and 256"));
+                        return Err((index, "constant must be between 1 and 256", ErrorType::Semantics));
                     }
 
                     unsigned_const_semantics.save();
@@ -314,7 +315,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 if symbol == ']' {
                     if !unsigned_const_semantics.valid() {
                         state = State::Error;
-                        return Err((index, "constant must be between 1 and 256"));
+                        return Err((index, "constant must be between 1 and 256", ErrorType::Semantics));
                     }
 
                     unsigned_const_semantics.save();
@@ -333,7 +334,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "maybe you want to use \",\", \"]\" or 0|..|9"));
+                return Err((index, "maybe you want to use \",\", \"]\" or 0|..|9", ErrorType::Syntax));
             }
 
             State::ListSpaces => match symbol {
@@ -343,7 +344,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "maybe you want to use \",\" or \"]\""));
+                    return Err((index, "maybe you want to use \",\" or \"]\"", ErrorType::Syntax));
                 }
             }
 
@@ -353,7 +354,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "maybe you want to use \":\""));
+                    return Err((index, "maybe you want to use \":\"", ErrorType::Syntax));
                 }
             }
 
@@ -362,7 +363,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "maybe you want to use \"=\""));
+                    return Err((index, "maybe you want to use \"=\"", ErrorType::Syntax));
                 }
             }
 
@@ -401,7 +402,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "maybe you want to use \"0\", \"-\" or 1|..|9"));
+                return Err((index, "maybe you want to use \"0\", \"-\" or 1|..|9", ErrorType::Syntax));
             }
 
             State::StConstMinus => {
@@ -415,14 +416,14 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "maybe you want to use 1|..|9"));
+                return Err((index, "maybe you want to use 1|..|9", ErrorType::Syntax));
             }
 
             State::StConst => {
                 if symbol == ' ' {
                     if !signed_const_semantics.valid() {
                         state = State::Error;
-                        return Err((index, "constant must be between -32768 and 32767"));
+                        return Err((index, "constant must be between -32768 and 32767", ErrorType::Semantics));
                     }
 
                     signed_const_semantics.save();
@@ -442,14 +443,14 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "maybe you want to use 0|..|9"));
+                return Err((index, "maybe you want to use 0|..|9", ErrorType::Syntax));
             }
 
             State::StConstZero => match symbol {
                 ' ' => {
                     if !signed_const_semantics.valid() {
                         state = State::Error;
-                        return Err((index, "constant must be between -32768 and 32767"));
+                        return Err((index, "constant must be between -32768 and 32767", ErrorType::Semantics));
                     }
 
                     signed_const_semantics.save();
@@ -459,7 +460,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "error"));
+                    return Err((index, "maybe you want to use space", ErrorType::Syntax));
                 }
             }
 
@@ -469,7 +470,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "maybe you want to use \"t\""));
+                    return Err((index, "maybe you want to use \"t\"", ErrorType::Syntax));
                 }
             }
 
@@ -478,7 +479,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "maybe you want to use \"o\""));
+                    return Err((index, "maybe you want to use \"o\"", ErrorType::Syntax));
                 }
             }
 
@@ -487,7 +488,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "maybe you want to use space"));
+                    return Err((index, "maybe you want to use space", ErrorType::Syntax));
                 }
             }
 
@@ -526,7 +527,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "maybe you want to use \"0\", \"-\" or 1|..|9"));
+                return Err((index, "maybe you want to use \"0\", \"-\" or 1|..|9", ErrorType::Syntax));
             }
 
             State::NdConstMinus => {
@@ -540,14 +541,14 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "maybe you want to use 1|..|9"));
+                return Err((index, "maybe you want to use 1|..|9", ErrorType::Syntax));
             }
 
             State::NdConst => {
                 if symbol == ' ' {
                     if !signed_const_semantics.valid() {
                         state = State::Error;
-                        return Err((index, "constant must be between -32768 and 32767"));
+                        return Err((index, "constant must be between -32768 and 32767", ErrorType::Semantics));
                     }
 
                     signed_const_semantics.save();
@@ -567,14 +568,14 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "maybe you want to use 0|..|9"));
+                return Err((index, "maybe you want to use 0|..|9", ErrorType::Syntax));
             }
 
             State::NdConstZero => match symbol {
                 ' ' => {
                     if !signed_const_semantics.valid() {
                         state = State::Error;
-                        return Err((index, "constant must be between -32768 and 32767"));
+                        return Err((index, "constant must be between -32768 and 32767", ErrorType::Semantics));
                     }
 
                     signed_const_semantics.save();
@@ -584,7 +585,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "maybe you want to use space"));
+                    return Err((index, "maybe you want to use space", ErrorType::Syntax));
                 }
             }
 
@@ -595,7 +596,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "maybe you want to use \"b\" or \"d\""));
+                    return Err((index, "maybe you want to use \"b\" or \"d\"", ErrorType::Syntax));
                 }
             }
 
@@ -604,7 +605,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "maybe you want to use \"y\""));
+                    return Err((index, "maybe you want to use \"y\"", ErrorType::Syntax));
                 }
             }
 
@@ -613,7 +614,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "maybe you want to use space"));
+                    return Err((index, "maybe you want to use space", ErrorType::Syntax));
                 }
             }
 
@@ -652,7 +653,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "maybe you want to use \"0\", \"-\" or 1|..|9"));
+                return Err((index, "maybe you want to use \"0\", \"-\" or 1|..|9", ErrorType::Syntax));
             }
 
             State::RdConstMinus => {
@@ -666,14 +667,14 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "maybe you want to use 1|..|9"));
+                return Err((index, "maybe you want to use 1|..|9", ErrorType::Syntax));
             }
 
             State::RdConst => {
                 if symbol == ' ' {
                     if !signed_const_semantics.valid() {
                         state = State::Error;
-                        return Err((index, "constant must be between -32768 and 32767"));
+                        return Err((index, "constant must be between -32768 and 32767", ErrorType::Semantics));
                     }
 
                     signed_const_semantics.save();
@@ -693,14 +694,14 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "maybe you want to use 0|..|9"));
+                return Err((index, "maybe you want to use 0|..|9", ErrorType::Syntax));
             }
 
             State::RdConstZero => match symbol {
                 ' ' => {
                     if !signed_const_semantics.valid() {
                         state = State::Error;
-                        return Err((index, "constant must be between -32768 and 32767"));
+                        return Err((index, "constant must be between -32768 and 32767", ErrorType::Semantics));
                     }
 
                     signed_const_semantics.save();
@@ -710,7 +711,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "maybe you want to use space"));
+                    return Err((index, "maybe you want to use space", ErrorType::Syntax));
                 }
             }
 
@@ -720,7 +721,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "maybe you want to use \"d\""));
+                    return Err((index, "maybe you want to use \"d\"", ErrorType::Syntax));
                 }
             }
 
@@ -729,7 +730,7 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
 
                 _ => {
                     state = State::Error;
-                    return Err((index, "maybe you want to use \"o\""));
+                    return Err((index, "maybe you want to use \"o\"", ErrorType::Syntax));
                 }
             }
 
@@ -747,12 +748,12 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
                 }
 
                 state = State::Error;
-                return Err((index, "maybe you want to use terminal"));
+                return Err((index, "maybe you want to use terminal", ErrorType::Syntax));
             }
 
             _ => {
                 state = State::Error;
-                return Err((index, "error"));
+                return Err((index, "error", ErrorType::Syntax));
             }
         }
 
@@ -760,11 +761,11 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str)> {
     }
 
     if state != State::Finish {
-        return Err((index, "use end terminal for close chain"));
+        return Err((index, "use end terminal for close chain", ErrorType::Syntax));
     }
 
     if !signed_const_semantics.check_range() {
-        return Err((signed_const_semantics.latest_index, "invalid range"));
+        return Err((signed_const_semantics.latest_index, "invalid range", ErrorType::Semantics));
     }
 
     Ok(semantics_html(
