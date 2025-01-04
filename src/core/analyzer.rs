@@ -87,17 +87,17 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str, Erro
                 if symbol == ' ' {
                     if !id_semantics.valid_length() {
                         state = State::Error;
-                        return Err((index, "id length should be from 1 to 8 chars", ErrorType::Semantics));
+                        return Err((index - 1, "id length should be from 1 to 8 chars", ErrorType::Semantics));
                     }
 
                     if id_semantics.eq_keyword() {
                         state = State::Error;
-                        return Err((index, "id should not equal keywords", ErrorType::Semantics));
+                        return Err((index - 1, "id should not equal keywords", ErrorType::Semantics));
                     }
 
                     if id_semantics.already_exists() {
                         state = State::Error;
-                        return Err((index, "ids must not be repeated", ErrorType::Semantics));
+                        return Err((index - 1, "ids must not be repeated", ErrorType::Semantics));
                     }
 
                     id_semantics.save();
@@ -110,17 +110,17 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str, Erro
                 if symbol == ':' {
                     if !id_semantics.valid_length() {
                         state = State::Error;
-                        return Err((index, "id length should be from 1 to 8 chars", ErrorType::Semantics));
+                        return Err((index - 1, "id length should be from 1 to 8 chars", ErrorType::Semantics));
                     }
 
                     if id_semantics.eq_keyword() {
                         state = State::Error;
-                        return Err((index, "id should not equal keywords", ErrorType::Semantics));
+                        return Err((index - 1, "id should not equal keywords", ErrorType::Semantics));
                     }
 
                     if id_semantics.already_exists() {
                         state = State::Error;
-                        return Err((index, "ids must not be repeated", ErrorType::Semantics));
+                        return Err((index - 1, "ids must not be repeated", ErrorType::Semantics));
                     }
 
                     id_semantics.save();
@@ -133,17 +133,17 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str, Erro
                 if symbol == '[' {
                     if !id_semantics.valid_length() {
                         state = State::Error;
-                        return Err((index, "id length should be from 1 to 8 chars", ErrorType::Semantics));
+                        return Err((index - 1, "id length should be from 1 to 8 chars", ErrorType::Semantics));
                     }
 
                     if id_semantics.eq_keyword() {
                         state = State::Error;
-                        return Err((index, "id should not equal keywords", ErrorType::Semantics));
+                        return Err((index - 1, "id should not equal keywords", ErrorType::Semantics));
                     }
 
                     if id_semantics.already_exists() {
                         state = State::Error;
-                        return Err((index, "ids must not be repeated", ErrorType::Semantics));
+                        return Err((index - 1, "ids must not be repeated", ErrorType::Semantics));
                     }
 
                     id_semantics.save();
@@ -207,17 +207,17 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str, Erro
                 if symbol == ' ' {
                     if !id_semantics.valid_length() {
                         state = State::Error;
-                        return Err((index, "id length should be from 1 to 8 chars", ErrorType::Semantics));
+                        return Err((index - 1, "id length should be from 1 to 8 chars", ErrorType::Semantics));
                     }
 
                     if id_semantics.eq_keyword() {
                         state = State::Error;
-                        return Err((index, "id should not equal keywords", ErrorType::Semantics));
+                        return Err((index - 1, "id should not equal keywords", ErrorType::Semantics));
                     }
 
                     if id_semantics.already_exists() {
                         state = State::Error;
-                        return Err((index, "ids must not be repeated", ErrorType::Semantics));
+                        return Err((index - 1, "ids must not be repeated", ErrorType::Semantics));
                     }
 
                     id_semantics.save();
@@ -230,17 +230,17 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str, Erro
                 if symbol == ',' {
                     if !id_semantics.valid_length() {
                         state = State::Error;
-                        return Err((index, "id length should be from 1 to 8 chars", ErrorType::Semantics));
+                        return Err((index - 1, "id length should be from 1 to 8 chars", ErrorType::Semantics));
                     }
 
                     if id_semantics.eq_keyword() {
                         state = State::Error;
-                        return Err((index, "id should not equal keywords", ErrorType::Semantics));
+                        return Err((index - 1, "id should not equal keywords", ErrorType::Semantics));
                     }
 
                     if id_semantics.already_exists() {
                         state = State::Error;
-                        return Err((index, "ids must not be repeated", ErrorType::Semantics));
+                        return Err((index - 1, "ids must not be repeated", ErrorType::Semantics));
                     }
 
                     id_semantics.save();
@@ -253,17 +253,17 @@ pub fn analyze(chain: &str, terminal: char) -> Result<String, (usize, &str, Erro
                 if symbol == ']' {
                     if !id_semantics.valid_length() {
                         state = State::Error;
-                        return Err((index, "id length should be from 1 to 8 chars", ErrorType::Semantics));
+                        return Err((index - 1, "id length should be from 1 to 8 chars", ErrorType::Semantics));
                     }
 
                     if id_semantics.eq_keyword() {
                         state = State::Error;
-                        return Err((index, "id should not equal keywords", ErrorType::Semantics));
+                        return Err((index - 1, "id should not equal keywords", ErrorType::Semantics));
                     }
 
                     if id_semantics.already_exists() {
                         state = State::Error;
-                        return Err((index, "ids must not be repeated", ErrorType::Semantics));
+                        return Err((index - 1, "ids must not be repeated", ErrorType::Semantics));
                     }
 
                     id_semantics.save();
